@@ -1,2 +1,3 @@
 # owner_rtos
-Hello everyone! this is my rtos repository
+Hello everyone! 
+This is my rtos repository.
