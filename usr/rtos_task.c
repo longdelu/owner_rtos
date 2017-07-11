@@ -25,6 +25,7 @@
 #include "rtos_task.h"
 #include "rtos_task_switch.h"
 #include "rtos_task_delay.h"
+#include "rtos_task_critical.h"
 
 
 
@@ -102,6 +103,16 @@ void rtos_task_run_first (void)
  */
 void rtos_task_sched(void)
 {
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry(); 
+    
+    if (rtos_task_schedlock_status()) {
+        
+        rtos_task_critical_exit(status);
+        return;
+        
+    }
+    
     
     if (p_current_task ==  p_task_table[0]) {
                 
@@ -115,6 +126,9 @@ void rtos_task_sched(void)
     
     rtos_task_switch();
     
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+    
 }
 #endif
 
@@ -124,9 +138,23 @@ void rtos_task_sched(void)
  */
 void rtos_task_sched(void)
 {
+    /* 
+     * 进入临界区，以保护在整个任务调度与切换期间，
+     * 不会因为发生中断导致p_current_task和p_next_task可能更改
+     */    
+    uint32_t status = rtos_task_critical_entry(); 
     
-    // 空闲任务只有在所有其它任务都不是延时状态时才执行
-    // 所以，我们先检查下当前任务是否是空闲任务
+    if (rtos_task_schedlock_status()) {
+        
+        rtos_task_critical_exit(status);
+        return;
+        
+    }
+    
+    /* 
+     * 空闲任务只有在所有其它任务都不是延时状态时才执行
+     * 所以，我们先检查下当前任务是否是空闲任务
+     */
     if (p_current_task == p_idle_task) 
     {
         // 如果是的话，那么去执行task1或者task2中的任意一个
@@ -141,6 +169,7 @@ void rtos_task_sched(void)
             p_next_task = p_task_table[1];
         } else 
         {
+            rtos_task_critical_exit(status);
             return;
         }
     } 
@@ -161,6 +190,7 @@ void rtos_task_sched(void)
             } 
             else 
             {
+                rtos_task_critical_exit(status);
                 return;
             }
         }
@@ -176,12 +206,17 @@ void rtos_task_sched(void)
             }
             else 
             {
+                rtos_task_critical_exit(status);
                 return;
             }
         }
     }
     
+    /* 触发PendSVC异常，进行任务切换 */
     rtos_task_switch();
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
     
 }
 

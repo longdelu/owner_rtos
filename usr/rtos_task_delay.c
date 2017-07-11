@@ -23,6 +23,7 @@
  
  #include "c_lib.h"
  #include "rtos_task.h"
+#include "rtos_task_critical.h"
  
 extern  uint32_t rtos_systick;
  
@@ -49,9 +50,14 @@ void rtos_mdelay (uint32_t ms) {
 /**
  * \brief  操作系延时，存在任务调度, 以10ms为一个时基单位
  */
-void rtos_sched_mdelay ( uint32_t ms)
-{
+void rtos_sched_mdelay ( uint32_t ms)    
+{   
+    uint32_t status = rtos_task_critical_entry(); 
+    
     p_current_task->delay_ticks = ms;
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
 
     /*
      * 然后进行任务切换，切换至另一个任务，或者空闲任务

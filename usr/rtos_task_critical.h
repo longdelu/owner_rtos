@@ -38,6 +38,30 @@ uint32_t rtos_task_critical_entry (void);
 void rtos_task_critical_exit (uint32_t status);
 
 
+/**
+ * \brief  调度锁打开，禁止任务调度
+ * \param[in] 无
+ * \return    无
+ */
+void rtos_task_sched_disable (void);
+
+
+/**
+ * \brief  调度锁关闭，允许任务调度
+ * \param[in] 无
+ * \return    无
+ */
+void rtos_task_sched_enable (void);
+
+
+/**
+ * \brief  查询调度锁状态
+ * \param[in] 无
+ * \return    TASKSCHED_UNLOCK: 允许任务调度; TASKSCHED_LOCK: 禁止任务调度
+ */
+uint8_t rtos_task_schedlock_status (void);
+
+
 
 
 
