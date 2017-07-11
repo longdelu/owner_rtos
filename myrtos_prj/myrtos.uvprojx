@@ -404,6 +404,11 @@
               <FileType>1</FileType>
               <FilePath>..\usr\rtos_task_delay.c</FilePath>
             </File>
+            <File>
+              <FileName>rtos_task_critical.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_task_critical.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

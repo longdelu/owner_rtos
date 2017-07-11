@@ -22,6 +22,7 @@
  */
  
  #include "c_lib.h"
+ #include "rtos_task.h"
  
 extern  uint32_t rtos_systick;
  
@@ -34,9 +35,9 @@ uint32_t rtos_get_systick(void)
 }
 
 /**
- * \brief  操作系统普通延时，没有任务调度
+ * \brief  操作系统普通延时，没有任务调度, 以10ms为一个时基单位
  */
-void rtos_mdelay(int ms) { 
+void rtos_mdelay (uint32_t ms) { 
     
   uint32_t ms_end = rtos_systick + ms;
     
@@ -44,6 +45,22 @@ void rtos_mdelay(int ms) {
       ;
   }
 }
+
+/**
+ * \brief  操作系延时，存在任务调度, 以10ms为一个时基单位
+ */
+void rtos_sched_mdelay ( uint32_t ms)
+{
+    p_current_task->delay_ticks = ms;
+
+    /*
+     * 然后进行任务切换，切换至另一个任务，或者空闲任务
+     * delay_tikcs会在时钟中断中自动减1.当减至0时，会切换回来继续运行
+     */
+    rtos_task_sched();              
+}
+    
+    
  
  
  /* end of file */

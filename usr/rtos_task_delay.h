@@ -15,17 +15,19 @@ extern "C" {
  *
  * \return    当前操作系统滴答时钟计数
  */    
-uint32_t rtos_get_systick(void); 
+uint32_t rtos_get_systick (void); 
     
 
 /**
- * \brief  返回当前操作系统滴答时钟计数
+ * \brief  无任务调度的延时
  *
- * \param[in] 延时周期，单位周期，最小延时为1ms
+ * \param[in] 延时周期，单位周期，最小延时为10ms
+ *   
+ * \note      要换算成相对应的tick计数
  *
  * \return    无
  */      
-void rtos_mdelay (int ms);   
+void rtos_mdelay (uint32_t ms);   
 
 
 /**
@@ -35,7 +37,19 @@ void rtos_mdelay (int ms);
  *
  * \return    无
  */
-void rtos_systick_init(uint32_t ms);
+void rtos_systick_init (uint32_t ms);
+
+
+/**
+ * \brief  有任务调度的延时
+ *
+ * \param[in] 延时周期，单位周期，最小延时为10ms
+ *   
+ * \note      要换算成相对应的tick计数
+ *
+ * \return    无
+ */      
+void rtos_sched_mdelay (uint32_t ms);   
 
 
 

@@ -27,15 +27,7 @@
 #include "rtos_task_delay.h"
 
 
-/** \brief 当前任务：记录当前是哪个任务正在运行 */
-extern rtos_task_t * p_current_task;
 
-/** \brief 下一个将即运行的任务：在进行任务切换前，先设置好该值，然后任务切换过程中会从中读取下一任务信息 */
-extern rtos_task_t * p_next_task;
-
-
-/** \brief 所有任务的指针数组：简单起见，只使用两个任务 */
-extern rtos_task_t * p_task_table[TASK_COUNT];
 
 /**
  * \brief 任务初始化
@@ -83,7 +75,9 @@ void rtos_task_init(rtos_task_t * task,
     *(--p_task_stack_top) = (unsigned long)0x4;                    // R4, 未用
     
     
-    task->task_stack_top = p_task_stack_top;                                // 保存最终的值 
+    task->task_stack_top = p_task_stack_top;                       // 保存最终的值,为栈顶的地址
+
+    task->delay_ticks    = 0;                                      // 任务延时间片
 }    
 
 
@@ -102,7 +96,7 @@ void rtos_task_run_first (void)
     
 }
 
-
+#if 0
 /**
  * \brief 任务调度
  */
@@ -122,8 +116,76 @@ void rtos_task_sched(void)
     rtos_task_switch();
     
 }
+#endif
 
+#if 1
+/**
+ * \brief 任务调度
+ */
+void rtos_task_sched(void)
+{
+    
+    // 空闲任务只有在所有其它任务都不是延时状态时才执行
+    // 所以，我们先检查下当前任务是否是空闲任务
+    if (p_current_task == p_idle_task) 
+    {
+        // 如果是的话，那么去执行task1或者task2中的任意一个
+        // 当然，如果某个任务还在延时状态，那么就不应该切换到他。
+        // 如果所有任务都在延时，那么就继续运行空闲任务，不进行任何切换了
+        if (p_task_table[0]->delay_ticks == 0) 
+        {
+            p_next_task = p_task_table[0];
+        }           
+        else if (p_task_table[1]->delay_ticks == 0) 
+        {
+            p_next_task = p_task_table[1];
+        } else 
+        {
+            return;
+        }
+    } 
+    else 
+    {
+        // 如果是task1或者task2的话，检查下另外一个任务
+        // 如果另外的任务不在延时中，就切换到该任务
+        // 否则，判断下当前任务是否应该进入延时状态，如果是的话，就切换到空闲任务。否则就不进行任何切换
+        if (p_current_task == p_task_table[0]) 
+        {
+            if (p_task_table[1]->delay_ticks == 0) 
+            {
+                p_next_task = p_task_table[1];
+            }
+            else if (p_current_task->delay_ticks != 0) 
+            {
+                p_next_task = p_idle_task;
+            } 
+            else 
+            {
+                return;
+            }
+        }
+        else if (p_current_task == p_task_table[1]) 
+        {
+            if (p_task_table[0]->delay_ticks == 0) 
+            {
+                p_next_task = p_task_table[0];
+            }
+            else if (p_current_task->delay_ticks != 0) 
+            {
+                p_next_task = p_idle_task;
+            }
+            else 
+            {
+                return;
+            }
+        }
+    }
+    
+    rtos_task_switch();
+    
+}
 
+#endif
 
 
 

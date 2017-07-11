@@ -9,12 +9,6 @@ extern "C" {
 
 
 /**
- * \brief 任务数量
- */    
-#define TASK_COUNT    2
-
-
-/**
  * \brief 触发PendSVC
  * \param[in] 无
  * \return    无
