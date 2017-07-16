@@ -70,6 +70,7 @@ void rtos_task_sched_enable (void)
     uint32_t status = rtos_task_critical_entry();
     
     if (__schedlock_count > 0) {
+        
         if (--__schedlock_count == 0) {
             
             /* 

@@ -25,8 +25,12 @@
 #include "rtos_task.h"
 #include "rtos_task_delay.h"
 #include "rtos_task_switch.h"
+#include "rtos_task_bitmap.h"
 
 #define   TASK_STACK_SIZE  1024
+
+/** \brief 位图数据结构第1个被设置的位 */
+int bitmap_first_set = 0;
 
 
 int g_task_flag1 = 0;
@@ -70,6 +74,7 @@ void idle_task_entry (void *p_arg)
 {
     for (; ;) {
         /* 空闲任务暂时什么都不做，它可以被用户任务抢占 */
+        
     }
 }
 
@@ -81,6 +86,31 @@ void idle_task_entry (void *p_arg)
  */
 void run_task_entry (void *p_arg)
 {
+   /* tBitmap数据类型测试 */
+    rtos_task_bitmap_t bitmap;
+    int i;
+
+    rtos_task_bitmap_init(&bitmap);
+
+    /* 依次从最高位开始，将所有位Set，然后检查第1个Set的位置序号 */
+    for (i = rtos_task_bitmap_prio_support() - 1; i >= 0 ; i--) 
+    {
+        rtos_task_bitmap_set(&bitmap, i);
+
+        /* bitmap_first_set的值应当依次为7,6,5,....,1,0 */
+        bitmap_first_set = rtos_task_bitmap_first_set_get(&bitmap);
+    }
+
+    /*  依次从第0位开始，将所有位Set，然后检查实际Set的位置序号 */
+    for (i = 0; i < rtos_task_bitmap_prio_support(); i++) 
+    {
+        rtos_task_bitmap_clr(&bitmap, i);
+        
+        /* bitmap_first_set的值应当依次为7,6,5,....,1,0 */
+        bitmap_first_set = rtos_task_bitmap_first_set_get(&bitmap);
+    }
+    /* tBitmap测试结束 */    
+    
      /* 系统节拍周期为10ms */
      rtos_systick_init(10); 
     

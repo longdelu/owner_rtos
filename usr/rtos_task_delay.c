@@ -33,6 +33,7 @@ extern  uint32_t rtos_systick;
 uint32_t rtos_get_systick(void) 
 { 
      return rtos_systick; 
+    
 }
 
 /**
@@ -40,11 +41,11 @@ uint32_t rtos_get_systick(void)
  */
 void rtos_mdelay (uint32_t ms) { 
     
-  uint32_t ms_end = rtos_systick + ms;
+    uint32_t ms_end = rtos_systick + ms;
     
-  while ((ms_end - rtos_systick) > 0) {
-      ;
-  }
+    while ((ms_end - rtos_systick) > 0) {
+        ;
+    }
 }
 
 /**
