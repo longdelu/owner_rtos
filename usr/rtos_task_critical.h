@@ -39,6 +39,14 @@ void rtos_task_critical_exit (uint32_t status);
 
 
 /**
+ * \brief  初始化调度锁
+ * \param[in] 无
+ * \return    无
+ */
+void rtos_task_schedlock_init (void);
+
+
+/**
  * \brief  调度锁打开，禁止任务调度
  * \param[in] 无
  * \return    无

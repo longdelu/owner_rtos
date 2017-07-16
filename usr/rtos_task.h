@@ -5,29 +5,34 @@
 extern "C" {
 #endif
 
-#include "c_lib.h"  
+#include "c_lib.h"
+#include "rtos_config.h"    
+#include "rtos_task_bitmap.h"
     
 /**
  * \brief 任务数量
  */    
-#define TASK_COUNT    2    
+#define TASK_COUNT    RTOS_PRIO_COUNT    
     
 /* Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
 typedef uint32_t taskstack_t;
     
 typedef struct rtos_task {
    
-    /** \brief 堆栈栈顶地址 */    
+    /** \brief 堆栈栈顶地址   */    
     uint32_t *task_stack_top;
     
     /** \brief 堆栈的起即地址 */
     uint32_t * stack_base;
 
-    /** \brief 堆栈的总容量 */
+    /** \brief 堆栈的总容量   */
     uint32_t stack_size;
     
     /** \brief 任务延时计数器 */
     uint32_t delay_ticks;
+
+    /** \brief 任务的优先级   */    
+    uint32_t prio;
     
 }rtos_task_t;
 
@@ -44,6 +49,9 @@ extern rtos_task_t * p_task_table[TASK_COUNT];
 
 /** \brief  空闲任务结构体指针 */
 extern rtos_task_t * p_idle_task;
+
+/** \brief 任务优先级的标记位置结构全变量 */
+extern rtos_task_bitmap_t task_priobitmap;
 
 
 /**
@@ -64,6 +72,17 @@ void rtos_task_init(rtos_task_t * task,
                     uint32_t task_prio, 
                     uint32_t *task_stack,
                     uint32_t task_stack_size);
+                    
+                    
+                    
+/**
+ * \brief 获取当前最高优先级且可运行的任务
+ *                    
+ * \param[in] 无
+ *
+ * \return    优先级最高的且可运行的任务结构体指针                                      
+ */
+rtos_task_t *rtos_task_highest_ready(void);                    
                     
                     
 /**

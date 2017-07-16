@@ -79,6 +79,23 @@ void rtos_task_init(rtos_task_t * task,
     task->task_stack_top = p_task_stack_top;                       // 保存最终的值,为栈顶的地址
 
     task->delay_ticks    = 0;                                      // 任务延时间片
+       
+    task->prio           = task_prio;                              // 设置任务的优先级 
+
+    p_task_table[task_prio] = task;                                // 以优先级为顺序，填入任务优先级表，方便通过优先级查找到对应的任务
+    
+    rtos_task_bitmap_set(&task_priobitmap, task_prio);             // 标记优先级位置中的相应位
+}    
+
+
+/**
+ * \brief 获取当前最高优先级且可运行的任务                                     
+ */
+rtos_task_t *rtos_task_highest_ready(void) 
+{
+    uint32_t highestPrio = rtos_task_bitmap_first_set_get(&task_priobitmap);
+    
+    return p_task_table[highestPrio];
 }    
 
 
@@ -97,15 +114,18 @@ void rtos_task_run_first (void)
     
 }
 
-#if 0
+#if 1
 /**
  * \brief 任务调度
  */
 void rtos_task_sched(void)
 {
+    rtos_task_t *  p_temp_task = NULL;
+    
     /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
     uint32_t status = rtos_task_critical_entry(); 
     
+    /* 调度锁打开时，表时不允许进行任务调度，直接返回 */
     if (rtos_task_schedlock_status()) {
         
         rtos_task_critical_exit(status);
@@ -114,25 +134,26 @@ void rtos_task_sched(void)
     }
     
     
-    if (p_current_task ==  p_task_table[0]) {
+   /* 找到优先级最高的任务，如果其优先级比当前任务的还高，那么就切换到这个任务 */
+    p_temp_task = rtos_task_highest_ready();    
+        
+    /* p_current_task 与 p_next_task 这两个者会在PendSVC异常处理函数中修正其值 */
+    if (p_current_task !=  p_temp_task) {
                 
-        p_next_task =  p_task_table[1];
-        
-    } else {
-        
-        p_next_task =  p_task_table[0];
+        p_next_task =  p_temp_task;    
+
+        /* 触发PendSVC异常，进行任务切换 */
+        rtos_task_switch();
         
     }
-    
-    rtos_task_switch();
-    
+        
     /* 退出临界区 */
     rtos_task_critical_exit(status); 
     
 }
 #endif
 
-#if 1
+#if 0
 /**
  * \brief 任务调度
  */

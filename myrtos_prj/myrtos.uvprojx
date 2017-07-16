@@ -414,6 +414,11 @@
               <FileType>1</FileType>
               <FilePath>..\usr\rtos_task_bitmap.c</FilePath>
             </File>
+            <File>
+              <FileName>rtos_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\usr\rtos_config.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

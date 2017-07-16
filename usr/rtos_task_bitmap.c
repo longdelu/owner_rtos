@@ -25,6 +25,7 @@
 #include "rtos_task_bitmap.h"
 #include "arm.h"
 #include "c_lib.h"
+#include "rtos_config.h"
 
  
 /**
@@ -64,7 +65,7 @@ void rtos_task_bitmap_clr (rtos_task_bitmap_t *p_rtos_task_bitmap, uint32_t bit_
  */
 uint32_t rtos_task_bitmap_first_set_get (rtos_task_bitmap_t *p_rtos_task_bitmap) 
 {
-    /*　分组查找，将8位某1位置1的数值算出，填到表中　*/  
+    /*　分组查找，将8位组成的256个数中最低位为1的数值算出来，填到表中　*/  
     static const uint8_t quick_find_bitmaptable[] =     
     {
         /* 00 */ 0xff, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,

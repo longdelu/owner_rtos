@@ -48,6 +48,14 @@ void rtos_task_critical_exit (uint32_t status)
 }
 
 /**
+ * \brief  初始化调度锁
+ */
+void rtos_task_schedlock_init (void)
+{
+    __schedlock_count = 0;
+}
+
+/**
  * \brief  调度锁打开，禁止任务调度
  */
 void rtos_task_sched_disable (void)
@@ -74,7 +82,7 @@ void rtos_task_sched_enable (void)
         if (--__schedlock_count == 0) {
             
             /* 
-             * 如果当前任务开启调度锁的时候，刚好可以执行任务调度，
+             * 如果当前任务关闭调度锁的时候，刚好可以执行任务调度，
              * 如果当前任务的优先级不为最高，则执行任务调度
              */
             rtos_task_sched();
@@ -85,7 +93,7 @@ void rtos_task_sched_enable (void)
 }
 
 /**
- * \brief  查询调度锁状诚
+ * \brief  查询调度锁状态
  */
 uint8_t rtos_task_schedlock_status (void)
 {

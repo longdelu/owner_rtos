@@ -1,5 +1,5 @@
-#ifndef __RTOS_TASK_CRITICAL_H
-#define __RTOS_TASK_CRITICAL_H
+#ifndef __RTOS_TASK_BITMAP_H
+#define __RTOS_TASK_BITMAP_H
 
 #ifdef __cplusplus
 extern "C" {

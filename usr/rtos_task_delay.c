@@ -21,10 +21,12 @@
  * \endinternal
  */
  
- #include "c_lib.h"
- #include "rtos_task.h"
+#include "c_lib.h"
+#include "rtos_task.h"
 #include "rtos_task_critical.h"
- 
+#include "rtos_task_bitmap.h"
+
+/** \brief 系统滴答计数值 */
 extern  uint32_t rtos_systick;
  
 /**
@@ -55,7 +57,11 @@ void rtos_sched_mdelay ( uint32_t ms)
 {   
     uint32_t status = rtos_task_critical_entry(); 
     
+    /* 设置任务的延时滴答 */
     p_current_task->delay_ticks = ms;
+    
+    /* 取消该任务的优先级标记,让出其CPU的使用权 */
+    rtos_task_bitmap_clr(&task_priobitmap, p_current_task->prio);
     
     /* 退出临界区 */
     rtos_task_critical_exit(status); 

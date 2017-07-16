@@ -23,19 +23,20 @@
 #include "arm.h"
 #include "c_lib.h"
 #include "rtos_task.h"
+#include "rtos_task_critical.h"
 #include "rtos_task_delay.h"
 #include "rtos_task_switch.h"
 #include "rtos_task_bitmap.h"
 
 #define   TASK_STACK_SIZE  1024
 
-/** \brief 位图数据结构第1个被设置的位 */
-int bitmap_first_set = 0;
-
 
 int g_task_flag1 = 0;
 
 int g_task_flag2 = 0;
+
+/** \brief 任务优先级的标记位置结构全变量 */
+rtos_task_bitmap_t task_priobitmap = {0};
 
 /** \brief 任务堆栈 */
 taskstack_t run_task_stack_buf[TASK_STACK_SIZE];
@@ -85,32 +86,7 @@ void idle_task_entry (void *p_arg)
  * \note  系统节拍初始化函数要等任务初始化函数完成后才能调用
  */
 void run_task_entry (void *p_arg)
-{
-   /* tBitmap数据类型测试 */
-    rtos_task_bitmap_t bitmap;
-    int i;
-
-    rtos_task_bitmap_init(&bitmap);
-
-    /* 依次从最高位开始，将所有位Set，然后检查第1个Set的位置序号 */
-    for (i = rtos_task_bitmap_prio_support() - 1; i >= 0 ; i--) 
-    {
-        rtos_task_bitmap_set(&bitmap, i);
-
-        /* bitmap_first_set的值应当依次为7,6,5,....,1,0 */
-        bitmap_first_set = rtos_task_bitmap_first_set_get(&bitmap);
-    }
-
-    /*  依次从第0位开始，将所有位Set，然后检查实际Set的位置序号 */
-    for (i = 0; i < rtos_task_bitmap_prio_support(); i++) 
-    {
-        rtos_task_bitmap_clr(&bitmap, i);
-        
-        /* bitmap_first_set的值应当依次为7,6,5,....,1,0 */
-        bitmap_first_set = rtos_task_bitmap_first_set_get(&bitmap);
-    }
-    /* tBitmap测试结束 */    
-    
+{    
      /* 系统节拍周期为10ms */
      rtos_systick_init(10); 
     
@@ -147,20 +123,31 @@ int main (void)
     NVIC_SetPriorityGrouping(0x03);
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(0x03,0x0F,0x0F));
     
+    /* 初始化调度器 */
+    rtos_task_schedlock_init();
+    
+    /* 初始化任务位图数据结构体变量 */
+    rtos_task_bitmap_init(&task_priobitmap);
+    
     /* 任务初始化函数 */
     rtos_task_init(&run_task, run_task_entry, &g_task_flag1, 0,  run_task_stack_buf, sizeof(run_task_stack_buf)); 
-    rtos_task_init(&next_task, next_task_entry, &g_task_flag2, 0,  next_task_stack_buf, sizeof(next_task_stack_buf));
+    rtos_task_init(&next_task, next_task_entry, &g_task_flag2, 1,  next_task_stack_buf, sizeof(next_task_stack_buf));
         
+    /* 空闲任务初始化 */
+    rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf));
+
+#if 0    
+    
     /* 初始化任务结构体列表 */
     p_task_table[0] = &run_task;
-    p_task_table[1] = &next_task;
+    p_task_table[1] = &next_task;  
+    p_idle_task = &idle_task;     
+    p_next_task = p_task_table[0];
     
-     /* 空闲任务初始化 */
-    rtos_task_init(&idle_task, idle_task_entry, NULL, 0,  idle_task_stack_buf, sizeof(idle_task_stack_buf));
-    p_idle_task = &idle_task;  
+#endif
     
-    /* 下一个运行的任务是run_task */
-    p_next_task =  p_task_table[0];
+    /* 自动查找最高优先级的任务运行 */
+    p_next_task =  rtos_task_highest_ready();
     
     /*  切换到p_next_task 指向的任务，这个函数永远不会返回 */
     rtos_task_run_first();
