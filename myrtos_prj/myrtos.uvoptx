@@ -135,40 +135,7 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>49</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>588</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\usr\rtos_systick.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\myrtos\../usr/rtos_systick.c\49</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>32</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>736</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\usr\rtos_systick.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\myrtos\../usr/rtos_systick.c\32</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -178,12 +145,12 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>task_stack_buf</ItemText>
+          <ItemText>run_task_stack_buf</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>currentTask</ItemText>
+          <ItemText>p_current_task</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
@@ -193,17 +160,57 @@
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;currentTask</ItemText>
+          <ItemText>&amp;p_current_task</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;task_stack_buf[1024]</ItemText>
+          <ItemText>&amp;run_task_stack_buf[1024]</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;task_stack_buf[1016]</ItemText>
+          <ItemText>&amp;run_task_stack_buf[1023]</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>p_next_task</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>&amp;p_next_task</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>next_task_stack_buf</ItemText>
+        </Ww>
+        <Ww>
+          <count>10</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>&amp;run_task_stack_buf[1004]</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>next_task</ItemText>
+        </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>&amp;next_task_stack_buf[1004]</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>&amp;next_task_stack_buf[1024]</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>bitmap_first_set</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
@@ -244,8 +251,13 @@
       <LogicAnalyzers>
         <Wi>
           <IntNumber>0</IntNumber>
-          <FirstString>`task_flag1</FirstString>
-          <SecondString>FF000000000000000000E0410000C0FFFFFFDF41010000000000000000000000000000007461736B5F666C616731000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000001000000000000000000F03F160000000000000000000000000000000000000058020000</SecondString>
+          <FirstString>`g_task_flag1</FirstString>
+          <SecondString>FF000000000000000000E0C10000C0FFFFFFDF4101000000000000000000000000000000675F7461736B5F666C61673100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000001000000000000000000E03F18000000000000000000000000000000000000008C050000</SecondString>
+        </Wi>
+        <Wi>
+          <IntNumber>1</IntNumber>
+          <FirstString>`g_task_flag2</FirstString>
+          <SecondString>00800000000000000000E0C10000C0FFFFFFDF4101000000000000000000000000000000675F7461736B5F666C61673200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000002000000000000000000E03F18000000000000000000000000000000000000008C050000</SecondString>
         </Wi>
       </LogicAnalyzers>
     </TargetOption>
@@ -314,6 +326,42 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\usr\rtos_task_delay.c</PathWithFileName>
       <FilenameWithoutPath>rtos_task_delay.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>6</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\usr\rtos_task_critical.c</PathWithFileName>
+      <FilenameWithoutPath>rtos_task_critical.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>7</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\usr\rtos_task_bitmap.c</PathWithFileName>
+      <FilenameWithoutPath>rtos_task_bitmap.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>8</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\usr\rtos_config.h</PathWithFileName>
+      <FilenameWithoutPath>rtos_config.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

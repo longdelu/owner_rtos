@@ -21,8 +21,12 @@
  * \endinternal
  */
  
- #include "c_lib.h"
- 
+#include "c_lib.h"
+#include "rtos_task.h"
+#include "rtos_task_critical.h"
+#include "rtos_task_bitmap.h"
+
+/** \brief 系统滴答计数值 */
 extern  uint32_t rtos_systick;
  
 /**
@@ -31,19 +35,45 @@ extern  uint32_t rtos_systick;
 uint32_t rtos_get_systick(void) 
 { 
      return rtos_systick; 
+    
 }
 
 /**
- * \brief  操作系统普通延时，没有任务调度
+ * \brief  操作系统普通延时，没有任务调度, 以10ms为一个时基单位
  */
-void rtos_mdelay(int ms) { 
+void rtos_mdelay (uint32_t ms) { 
     
-  uint32_t ms_end = rtos_systick + ms;
+    uint32_t ms_end = rtos_systick + ms;
     
-  while ((ms_end - rtos_systick) > 0) {
-      ;
-  }
+    while ((ms_end - rtos_systick) > 0) {
+        ;
+    }
 }
+
+/**
+ * \brief  操作系延时，存在任务调度, 以10ms为一个时基单位
+ */
+void rtos_sched_mdelay ( uint32_t ms)    
+{   
+    uint32_t status = rtos_task_critical_entry(); 
+    
+    /* 设置任务的延时滴答 */
+    p_current_task->delay_ticks = ms;
+    
+    /* 取消该任务的优先级标记,让出其CPU的使用权 */
+    rtos_task_bitmap_clr(&task_priobitmap, p_current_task->prio);
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+
+    /*
+     * 然后进行任务切换，切换至另一个任务，或者空闲任务
+     * delay_tikcs会在时钟中断中自动减1.当减至0时，会切换回来继续运行
+     */
+    rtos_task_sched();              
+}
+    
+    
  
  
  /* end of file */
