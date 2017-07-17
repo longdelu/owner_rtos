@@ -27,12 +27,14 @@
 #include "rtos_task_delay.h"
 #include "rtos_task_switch.h"
 #include "rtos_task_bitmap.h"
+#include "rtos_task_list.h"
 
 #define   TASK_STACK_SIZE  1024
 
-
+/** \brief 任务1标记 */
 int g_task_flag1 = 0;
 
+/** \brief 任务2标记 */
 int g_task_flag2 = 0;
 
 /** \brief 任务优先级的标记位置结构全变量 */
@@ -68,6 +70,9 @@ taskstack_t idle_task_stack_buf[TASK_STACK_SIZE];
 /** \brief  空闲任务结构体指针 */
 rtos_task_t * p_idle_task;
 
+
+
+
 /**
  * \brief 空闲任务入口函数
  */
@@ -79,6 +84,9 @@ void idle_task_entry (void *p_arg)
     }
 }
 
+rtos_task_list_t rtos_task_list;
+
+dlist_node_t list_node[8];
 
 
 /**
@@ -87,8 +95,22 @@ void idle_task_entry (void *p_arg)
  */
 void run_task_entry (void *p_arg)
 {    
-     /* 系统节拍周期为10ms */
-     rtos_systick_init(10); 
+    uint8_t i = 0;
+    
+    /* 系统节拍周期为10ms */
+    rtos_systick_init(10); 
+    
+    rtos_task_list_init(&rtos_task_list);
+    
+    for (i = 0; i < 8; i++) {
+        rtos_task_list_add_head(&rtos_task_list, &list_node[i]);
+            
+    }
+    
+    for (i = 0; i < 8; i++) {
+        rtos_task_list_remove_first(&rtos_task_list);
+            
+    }
     
      for (; ;) {
          

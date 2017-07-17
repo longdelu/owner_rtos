@@ -32,7 +32,20 @@ extern "C" {
 
 
 /** \brief 任务的优先级序号 */    
-#define   RTOS_PRIO_COUNT                32    
+#define   RTOS_PRIO_COUNT                32   
+    
+    
+
+/** \brief 操作成功OK */   
+#define  RTOS_OK                         0
+
+    
+/** \brief 操作失败 */
+#define  RTOS_ERROR                      1  
+
+
+/** \brief 操作无效 */
+#define  RTOS_EINVAILD                   2     
     
     
 #ifdef __cplusplus

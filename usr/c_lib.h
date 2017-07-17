@@ -4,11 +4,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+#include <stddef.h>    
+#include <stdint.h>
+#include <stdio.h>   
+#include <string.h>  
+#include <math.h> 
 
-#include "stdint.h"
-#include "stdio.h"   
-#include "string.h"  
-#include "math.h"  
 
 /** \brief µ÷¶ÈËø×´Ì¬ */
 #define TASKSCHED_UNLOCK           0    

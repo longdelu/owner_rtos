@@ -419,6 +419,16 @@
               <FileType>5</FileType>
               <FilePath>..\usr\rtos_config.h</FilePath>
             </File>
+            <File>
+              <FileName>rtos_task_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_task_list.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_list.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
