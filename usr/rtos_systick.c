@@ -26,6 +26,10 @@
 #include "rtos_task_bitmap.h"
 
 
+/** \brief  任务延时队列 */
+extern rtos_task_list_t rtos_task_delayedlist;
+
+
 /** \brief 系统滴答计数值 */
 uint32_t rtos_systick = 0;
 
@@ -36,28 +40,47 @@ uint32_t rtos_systick = 0;
 static void __rtos_task_delay_tick_handler (void)
 {
     volatile uint32_t i = 0;
+    
+    dlist_node_t *p_tmp = NULL; 
+    
+    dlist_node_t *p_end = NULL; 
+    
+    dlist_node_t *p_next = NULL; 
+    
+     rtos_task_t * p_task  = NULL;
        
     /*　临界区保护　*/
     uint32_t status = rtos_task_critical_entry();
+       
+    /* 获得第一个用户结点 */
+    p_next  = dlist_begin_get(&rtos_task_delayedlist.head_node);
     
-      
-    /* 检查所有任务的delayTicks数，如果不0的话，减1 */
+    /* 结束位置为头结点本身 */
+    p_end  = dlist_end_get(&rtos_task_delayedlist.head_node);
     
-    for (i = 0; i < TASK_COUNT; i++) {
+    
+     /* 检查所有任务的delayTicks数，如果不0的话，减1 */
+    while(p_next != p_end) {   
+
+        /* 先纪录下当前结点 */
+        p_tmp =  p_next;
+           
+        /* 先记录下一个结点的信息 */
+        p_next = dlist_next_get(&rtos_task_delayedlist.head_node, p_next);
         
-        if (p_task_table[i]->delay_ticks > 0) {
+        
+        p_task = RTOS_CONTAINER_OF(p_tmp, rtos_task_t, delay_node);
+        
+        if (--p_task->delay_ticks == 0) {
             
-            p_task_table[i]->delay_ticks--;
+            rtos_task_del_delayed_list(p_task);
             
-        } else {
-            
-            /* 使优先级就绪 */
-            rtos_task_bitmap_set(&task_priobitmap, i);            
-            
+            rtos_task_sched_ready(p_task);
         }
         
+              
     }
-
+   
     /* 退出临界区保护 */
     rtos_task_critical_exit(status);    
 }

@@ -139,9 +139,25 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>103</LineNumber>
+          <LineNumber>96</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>698</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\usr\rtos_systick.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\myrtos\../usr/rtos_systick.c\96</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>114</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>2042</Address>
+          <Address>1266</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -150,104 +166,144 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\usr\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\myrtos\../usr/main.c\103</Expression>
+          <Expression>\\myrtos\../usr/main.c\114</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>98</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>2154</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\usr\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\myrtos\../usr/main.c\98</Expression>
+        </Bp>
+        <Bp>
+          <Number>3</Number>
+          <Type>0</Type>
+          <LineNumber>83</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>932</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\usr\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\myrtos\../usr/main.c\83</Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>51</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>766</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\usr\rtos_systick.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\myrtos\../usr/rtos_systick.c\51</Expression>
+        </Bp>
+        <Bp>
+          <Number>5</Number>
+          <Type>0</Type>
+          <LineNumber>51</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>796</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\usr\rtos_systick.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\myrtos\../usr/rtos_systick.c\51</Expression>
+        </Bp>
+        <Bp>
+          <Number>6</Number>
+          <Type>0</Type>
+          <LineNumber>116</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\usr\rtos_systick.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>SystemCoreClock,0x0A</ItemText>
+          <ItemText>p_current_task</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>run_task_stack_buf</ItemText>
+          <ItemText>run_task</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>p_current_task</ItemText>
+          <ItemText>&amp;p_current_task</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>run_task</ItemText>
+          <ItemText>&amp;p_next_task</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;p_current_task</ItemText>
+          <ItemText>p_next_task</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;run_task_stack_buf[1024]</ItemText>
+          <ItemText>next_task</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;run_task_stack_buf[1023]</ItemText>
+          <ItemText>rtos_task_delayedlist</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>p_next_task</ItemText>
+          <ItemText>task_priobitmap</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;p_next_task</ItemText>
+          <ItemText>p_task_table</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>next_task_stack_buf</ItemText>
+          <ItemText>&amp;rtos_task_delayedlist.head_node</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>&amp;run_task_stack_buf[1004]</ItemText>
-        </Ww>
-        <Ww>
-          <count>11</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>next_task</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>&amp;next_task_stack_buf[1004]</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>&amp;next_task_stack_buf[1024]</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>bitmap_first_set</ItemText>
-        </Ww>
-        <Ww>
-          <count>15</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>rtos_task_list</ItemText>
-        </Ww>
-        <Ww>
-          <count>16</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>list_node</ItemText>
-        </Ww>
-        <Ww>
-          <count>17</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>rtos_task_list</ItemText>
-        </Ww>
-        <Ww>
-          <count>18</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>list_node</ItemText>
+          <ItemText>rtos_task_delayedlist.head_node.p_next-&gt;p_next</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
@@ -289,12 +345,12 @@
         <Wi>
           <IntNumber>0</IntNumber>
           <FirstString>`g_task_flag1</FirstString>
-          <SecondString>FF000000000000000000E0C10000C0FFFFFFDF4101000000000000000000000000000000675F7461736B5F666C61673100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000001000000000000000000E03F17000000000000000000000000000000000000008C050000</SecondString>
+          <SecondString>FF000000000000000000E0C10000C0FFFFFFDF4101000000000000000000000000000000675F7461736B5F666C61673100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000001000000000000000000E03F15000000000000000000000000000000000000008C050000</SecondString>
         </Wi>
         <Wi>
           <IntNumber>1</IntNumber>
           <FirstString>`g_task_flag2</FirstString>
-          <SecondString>00800000000000000000E0C10000C0FFFFFFDF4101000000000000000000000000000000675F7461736B5F666C61673200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000002000000000000000000E03F17000000000000000000000000000000000000008C050000</SecondString>
+          <SecondString>00800000000000000000E0C10000C0FFFFFFDF4101000000000000000000000000000000675F7461736B5F666C61673200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000002000000000000000000E03F15000000000000000000000000000000000000008C050000</SecondString>
         </Wi>
       </LogicAnalyzers>
     </TargetOption>

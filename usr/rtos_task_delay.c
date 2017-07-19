@@ -53,15 +53,16 @@ void rtos_mdelay (uint32_t ms) {
 /**
  * \brief  操作系延时，存在任务调度, 以10ms为一个时基单位
  */
-void rtos_sched_mdelay ( uint32_t ms)    
+void rtos_sched_mdelay (uint32_t ms)    
 {   
     uint32_t status = rtos_task_critical_entry(); 
     
-    /* 设置任务的延时滴答 */
-    p_current_task->delay_ticks = ms;
+    /* 插入任务延时队列，并设置任务的延时滴答 */
+    rtos_task_add_delayed_list(p_current_task, ms);
     
-    /* 取消该任务的优先级标记,让出其CPU的使用权 */
-    rtos_task_bitmap_clr(&task_priobitmap, p_current_task->prio);
+    /* 将任务从就绪表中移除 */
+    rtos_task_sched_unready(p_current_task);
+    
     
     /* 退出临界区 */
     rtos_task_critical_exit(status); 

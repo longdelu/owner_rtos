@@ -434,7 +434,7 @@ dlist_node_t *dlist_end_get (dlist_head_t *p_head)
     if (p_head != NULL) {
         
         /* 返回尾结点下一结点的位置,即头结点本身 */
-        return p_head->p_prev;
+        return p_head->p_prev->p_next;
     }
     
     return NULL; 

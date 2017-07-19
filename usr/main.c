@@ -40,6 +40,9 @@ int g_task_flag2 = 0;
 /** \brief 任务优先级的标记位置结构全变量 */
 rtos_task_bitmap_t task_priobitmap = {0};
 
+/** \brief  任务延时队列 */
+rtos_task_list_t rtos_task_delayedlist;
+
 /** \brief 任务堆栈 */
 taskstack_t run_task_stack_buf[TASK_STACK_SIZE];
 taskstack_t next_task_stack_buf[TASK_STACK_SIZE];
@@ -67,8 +70,7 @@ rtos_task_t idle_task;
 /** \brief 空闲任务堆栈 */
 taskstack_t idle_task_stack_buf[TASK_STACK_SIZE];
 
-/** \brief  空闲任务结构体指针 */
-rtos_task_t * p_idle_task;
+
 
 
 
@@ -84,10 +86,6 @@ void idle_task_entry (void *p_arg)
     }
 }
 
-rtos_task_list_t rtos_task_list;
-
-dlist_node_t list_node[8];
-
 
 /**
  * \brief 当前任务入口函数
@@ -95,22 +93,9 @@ dlist_node_t list_node[8];
  */
 void run_task_entry (void *p_arg)
 {    
-    uint8_t i = 0;
     
     /* 系统节拍周期为10ms */
     rtos_systick_init(10); 
-    
-    rtos_task_list_init(&rtos_task_list);
-    
-    for (i = 0; i < 8; i++) {
-        rtos_task_list_add_head(&rtos_task_list, &list_node[i]);
-            
-    }
-    
-    for (i = 0; i < 8; i++) {
-        rtos_task_list_remove_first(&rtos_task_list);
-            
-    }
     
      for (; ;) {
          
@@ -151,6 +136,9 @@ int main (void)
     /* 初始化任务位图数据结构体变量 */
     rtos_task_bitmap_init(&task_priobitmap);
     
+    /* 初始化任务延时队列 */    
+    rtos_task_delayed_init(&rtos_task_delayedlist);
+    
     /* 任务初始化函数 */
     rtos_task_init(&run_task, run_task_entry, &g_task_flag1, 0,  run_task_stack_buf, sizeof(run_task_stack_buf)); 
     rtos_task_init(&next_task, next_task_entry, &g_task_flag2, 1,  next_task_stack_buf, sizeof(next_task_stack_buf));
@@ -158,15 +146,6 @@ int main (void)
     /* 空闲任务初始化 */
     rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf));
 
-#if 0    
-    
-    /* 初始化任务结构体列表 */
-    p_task_table[0] = &run_task;
-    p_task_table[1] = &next_task;  
-    p_idle_task = &idle_task;     
-    p_next_task = p_task_table[0];
-    
-#endif
     
     /* 自动查找最高优先级的任务运行 */
     p_next_task =  rtos_task_highest_ready();

@@ -26,14 +26,19 @@
 #include "rtos_task_switch.h"
 #include "rtos_task_delay.h"
 #include "rtos_task_critical.h"
+#include "rtos_task_bitmap.h"
 
+/** \brief 任务优先级的标记位置结构全变量 */
+extern rtos_task_bitmap_t task_priobitmap;
 
+/** \brief  任务延时队列 */
+extern rtos_task_list_t rtos_task_delayedlist;
 
 
 /**
  * \brief 任务初始化
  */
-void rtos_task_init(rtos_task_t * task, 
+void rtos_task_init(rtos_task_t *task, 
                     void (*task_entry) (void *p_arg), 
                     void *p_arg, 
                     uint32_t task_prio, 
@@ -81,11 +86,39 @@ void rtos_task_init(rtos_task_t * task,
     task->delay_ticks    = 0;                                      // 任务延时间片
        
     task->prio           = task_prio;                              // 设置任务的优先级 
-
+    
+    task->task_state     = RTOS_TASK_STATE_REDDY;                  // 设置任务为就绪状态 
+    
+    dlist_init(&task->delay_node);                                 // 初始化延时队列
+    
     p_task_table[task_prio] = task;                                // 以优先级为顺序，填入任务优先级表，方便通过优先级查找到对应的任务
     
     rtos_task_bitmap_set(&task_priobitmap, task_prio);             // 标记优先级位置中的相应位
-}    
+} 
+
+/**
+ * \brief 将任务设置为就绪状态                                     
+ */
+void rtos_task_sched_ready(rtos_task_t *task)
+{
+    
+    p_task_table[task->prio] = task; 
+    
+    rtos_task_bitmap_set(&task_priobitmap,task->prio); 
+} 
+
+
+/**
+ * \brief 将任务从绪列表中移除                                    
+ */
+void rtos_task_sched_unready(rtos_task_t *task)
+{
+    
+    p_task_table[task->prio] = NULL; 
+    
+    rtos_task_bitmap_clr(&task_priobitmap,task->prio); 
+}  
+
 
 
 /**
@@ -97,6 +130,7 @@ rtos_task_t *rtos_task_highest_ready(void)
     
     return p_task_table[highestPrio];
 }    
+
 
 
 /**
@@ -114,13 +148,12 @@ void rtos_task_run_first (void)
     
 }
 
-#if 1
 /**
  * \brief 任务调度
  */
 void rtos_task_sched(void)
 {
-    rtos_task_t *  p_temp_task = NULL;
+    rtos_task_t *p_temp_task = NULL;
     
     /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
     uint32_t status = rtos_task_critical_entry(); 
@@ -134,7 +167,7 @@ void rtos_task_sched(void)
     }
     
     
-   /* 找到优先级最高的任务，如果其优先级比当前任务的还高，那么就切换到这个任务 */
+   /* 找到此时可运行优先级最高的任务，那么就切换到这个任务 */
     p_temp_task = rtos_task_highest_ready();    
         
     /* p_current_task 与 p_next_task 这两个者会在PendSVC异常处理函数中修正其值 */
@@ -151,97 +184,47 @@ void rtos_task_sched(void)
     rtos_task_critical_exit(status); 
     
 }
-#endif
 
-#if 0
+
 /**
- * \brief 任务调度
+ * \brief 初始化任务延时队列
  */
-void rtos_task_sched(void)
+void rtos_task_delayed_init (rtos_task_list_t *p_rtos_task_delayed_list)
 {
-    /* 
-     * 进入临界区，以保护在整个任务调度与切换期间，
-     * 不会因为发生中断导致p_current_task和p_next_task可能更改
-     */    
-    uint32_t status = rtos_task_critical_entry(); 
-    
-    if (rtos_task_schedlock_status()) {
-        
-        rtos_task_critical_exit(status);
-        return;
-        
-    }
-    
-    /* 
-     * 空闲任务只有在所有其它任务都不是延时状态时才执行
-     * 所以，我们先检查下当前任务是否是空闲任务
-     */
-    if (p_current_task == p_idle_task) 
-    {
-        // 如果是的话，那么去执行task1或者task2中的任意一个
-        // 当然，如果某个任务还在延时状态，那么就不应该切换到他。
-        // 如果所有任务都在延时，那么就继续运行空闲任务，不进行任何切换了
-        if (p_task_table[0]->delay_ticks == 0) 
-        {
-            p_next_task = p_task_table[0];
-        }           
-        else if (p_task_table[1]->delay_ticks == 0) 
-        {
-            p_next_task = p_task_table[1];
-        } else 
-        {
-            rtos_task_critical_exit(status);
-            return;
-        }
-    } 
-    else 
-    {
-        // 如果是task1或者task2的话，检查下另外一个任务
-        // 如果另外的任务不在延时中，就切换到该任务
-        // 否则，判断下当前任务是否应该进入延时状态，如果是的话，就切换到空闲任务。否则就不进行任何切换
-        if (p_current_task == p_task_table[0]) 
-        {
-            if (p_task_table[1]->delay_ticks == 0) 
-            {
-                p_next_task = p_task_table[1];
-            }
-            else if (p_current_task->delay_ticks != 0) 
-            {
-                p_next_task = p_idle_task;
-            } 
-            else 
-            {
-                rtos_task_critical_exit(status);
-                return;
-            }
-        }
-        else if (p_current_task == p_task_table[1]) 
-        {
-            if (p_task_table[0]->delay_ticks == 0) 
-            {
-                p_next_task = p_task_table[0];
-            }
-            else if (p_current_task->delay_ticks != 0) 
-            {
-                p_next_task = p_idle_task;
-            }
-            else 
-            {
-                rtos_task_critical_exit(status);
-                return;
-            }
-        }
-    }
-    
-    /* 触发PendSVC异常，进行任务切换 */
-    rtos_task_switch();
-    
-    /* 退出临界区 */
-    rtos_task_critical_exit(status); 
-    
+     rtos_task_list_init(p_rtos_task_delayed_list);  
 }
 
-#endif
+
+/**
+ * \brief 将任务加入到延时队列中
+ */
+void rtos_task_add_delayed_list (rtos_task_t *p_task, uint32_t delay_ticks)
+{
+    p_task->delay_ticks = delay_ticks;
+    
+    rtos_task_list_add_tail(&rtos_task_delayedlist, &p_task->delay_node);
+
+    p_task->task_state |= RTOS_TASK_STATE_DELAYED;    
+           
+}
+
+
+/**
+ * \brief 将任务从延时队列中唤醒
+ */
+void rtos_task_del_delayed_list (rtos_task_t *p_task)
+{
+    rtos_task_list_remove(&rtos_task_delayedlist, &p_task->delay_node);
+
+    p_task->task_state &= ~RTOS_TASK_STATE_REDDY;    
+           
+}
+
+
+
+
+    
+
 
 
 

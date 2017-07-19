@@ -8,11 +8,19 @@ extern "C" {
 #include "c_lib.h"
 #include "rtos_config.h"    
 #include "rtos_task_bitmap.h"
+#include "rtos_task_list.h"
+#include "rtos_list.h"
     
 /**
  * \brief 任务数量
  */    
-#define TASK_COUNT    RTOS_PRIO_COUNT    
+#define TASK_COUNT    RTOS_PRIO_COUNT  
+    
+/** \brief 任务处于就绪状态 */   
+#define RTOS_TASK_STATE_REDDY      (1UL << 0)  
+    
+/** \brief 任务处于延时状态 */   
+#define RTOS_TASK_STATE_DELAYED    (1UL << 1)     
     
 /* Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
 typedef uint32_t taskstack_t;
@@ -33,6 +41,15 @@ typedef struct rtos_task {
 
     /** \brief 任务的优先级   */    
     uint32_t prio;
+    
+    /** \brief 任务的延时结点，通过该结点将任务放置到延时队列中   */     
+    dlist_node_t delay_node;
+
+
+    /** \brief 任务的状态   */      
+    uint32_t task_state;
+    
+    
     
 }rtos_task_t;
 
@@ -74,7 +91,23 @@ void rtos_task_init(rtos_task_t * task,
                     uint32_t task_stack_size);
                     
                     
+/**
+ * \brief 将任务设置为就绪状态 
+ * 
+ * \param[in] task: 任务结构体指针   
+ * \return 无                    
+ */
+void rtos_task_sched_ready(rtos_task_t *task);
+
+
+/**
+ * \brief 将任务从绪列表中移除
+ * \param[in] task: 任务结构体指针   
+ * \return 无                       
+ */
+void rtos_task_sched_unready(rtos_task_t *task);                   
                     
+                                       
 /**
  * \brief 获取当前最高优先级且可运行的任务
  *                    
@@ -102,7 +135,32 @@ void rtos_task_run_first (void);
  *
  * \return    无
  */
-void rtos_task_sched(void);                    
+void rtos_task_sched(void);           
+
+
+/**
+ * \brief 初始化任务延时队列
+ * \param[in] p_rtos_task_delayed_list : 指向任务延时队列的指针
+ * \return 无
+ */
+void rtos_task_delayed_init (rtos_task_list_t *p_rtos_task_delayed_list);
+
+
+/**
+ * \brief 将任务加入到延时队列中
+ * \param[in] p_task: 任务结构体指针   
+ * \param[in] delay_ticks: 延时的ticks
+ * \return 无  
+ */
+void rtos_task_add_delayed_list (rtos_task_t * p_task, uint32_t delay_ticks);
+
+
+/**
+ * \brief 将任务从延时队列中唤醒
+ * \param[in] p_task: 任务结构体指针   
+ * \return 无  
+ */
+void rtos_task_del_delayed_list (rtos_task_t *p_task);
 
 
 #ifdef __cplusplus
