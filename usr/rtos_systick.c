@@ -24,10 +24,14 @@
 #include "rtos_task.h"
 #include "rtos_task_critical.h"
 #include "rtos_task_bitmap.h"
+#include "rtos_config.h"
 
 
 /** \brief  任务延时队列 */
 extern rtos_task_list_t rtos_task_delayedlist;
+
+/** \brief 同一个优先级任务的链表头结点 */
+extern rtos_task_list_t task_table[TASK_COUNT];
 
 
 /** \brief 系统滴答计数值 */
@@ -59,7 +63,7 @@ static void __rtos_task_delay_tick_handler (void)
     p_end  = dlist_end_get(&rtos_task_delayedlist.head_node);
     
     
-     /* 检查所有任务的delayTicks数，如果不0的话，减1 */
+     /* 检查所有任务延时列表时面所有任务的delayTicks数，如果不0的话，减1 */
     while(p_next != p_end) {   
 
         /* 先纪录下当前结点 */
@@ -73,12 +77,32 @@ static void __rtos_task_delay_tick_handler (void)
         
         if (--p_task->delay_ticks == 0) {
             
+            /* 将任务从延时队列中移除 */
             rtos_task_del_delayed_list(p_task);
             
+            /* 将任务登记到就绪列表中 */
             rtos_task_sched_ready(p_task);
         }
         
               
+    }
+    
+    /* 检查下当前任务的时间片是否已经到了 */
+    if (--p_current_task->slice == 0)
+    {
+        /*
+         * 如果当前任务中还有其它任务的话，那么切换到下一个任务
+         * 方法是将当前任务从队列的头部移除，插入到尾部
+         * 这样后面执rtos_task_sched()时就会从头部取出新的任务取出新的任务作为当前任务运行
+         */
+        if (rtos_task_list_count(&task_table[p_current_task->prio]) > 0)
+        {
+            rtos_task_list_remove_first(&task_table[p_current_task->prio]);
+            rtos_task_list_add_tail(&task_table[p_current_task->prio], &(p_current_task->prio_node));
+
+            /*  重置计数器 */
+            p_current_task->slice = RTOS_SLICE_MAX;
+        }
     }
    
     /* 退出临界区保护 */

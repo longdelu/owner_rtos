@@ -27,12 +27,16 @@
 #include "rtos_task_delay.h"
 #include "rtos_task_critical.h"
 #include "rtos_task_bitmap.h"
+#include "rtos_config.h"
 
 /** \brief 任务优先级的标记位置结构全变量 */
 extern rtos_task_bitmap_t task_priobitmap;
 
 /** \brief  任务延时队列 */
 extern rtos_task_list_t rtos_task_delayedlist;
+
+/** \brief 同一个优先级任务的链表头结点 */
+extern rtos_task_list_t task_table[TASK_COUNT];
 
 
 /**
@@ -90,8 +94,12 @@ void rtos_task_init(rtos_task_t *task,
     task->task_state     = RTOS_TASK_STATE_REDDY;                  // 设置任务为就绪状态 
     
     dlist_init(&task->delay_node);                                 // 初始化延时队列
+    dlist_init(&task->prio_node);                                  // 初始化同一优先级任务队列
     
-    p_task_table[task_prio] = task;                                // 以优先级为顺序，填入任务优先级表，方便通过优先级查找到对应的任务
+    /*
+     * \note 调用该函数，一定要保证该优先级的任务头结点已经有正确的指向
+     */
+    rtos_task_list_add_tail(&task_table[task_prio], &(task->prio_node));  // 插入对应的优先级队列中
     
     rtos_task_bitmap_set(&task_priobitmap, task_prio);             // 标记优先级位置中的相应位
 } 
@@ -102,7 +110,7 @@ void rtos_task_init(rtos_task_t *task,
 void rtos_task_sched_ready(rtos_task_t *task)
 {
     
-    p_task_table[task->prio] = task; 
+    rtos_task_list_add_tail(&task_table[task->prio], &(task->prio_node)); 
     
     rtos_task_bitmap_set(&task_priobitmap,task->prio); 
 } 
@@ -113,11 +121,28 @@ void rtos_task_sched_ready(rtos_task_t *task)
  */
 void rtos_task_sched_unready(rtos_task_t *task)
 {
+    rtos_task_list_remove(&task_table[task->prio], &(task->prio_node));
     
-    p_task_table[task->prio] = NULL; 
+    if (rtos_task_list_count(&task_table[task->prio]) == 0) {
     
-    rtos_task_bitmap_clr(&task_priobitmap,task->prio); 
+        /* 只能该优先级的任务链表上没有任何任务时，才清楚就绪表 */
+        rtos_task_bitmap_clr(&task_priobitmap,task->prio);
+    }        
+}
+
+/**
+ * \brief 初始化优先级任务调度链表                                    
+ */
+void rtos_task_sched_init(rtos_task_list_t *p_task_table)
+{
+    
+    volatile uint32_t i = 0;
+    
+    for (i = 0; i < RTOS_PRIO_COUNT; i++) {
+         rtos_task_list_init(&p_task_table[i]);
+    }    
 }  
+
 
 
 
@@ -128,7 +153,10 @@ rtos_task_t *rtos_task_highest_ready(void)
 {
     uint32_t highestPrio = rtos_task_bitmap_first_set_get(&task_priobitmap);
     
-    return p_task_table[highestPrio];
+    dlist_node_t *p_node = rtos_task_list_begin_get(&task_table[highestPrio]);
+    
+    /* 近回优先级任务链表的最前面的那个任务 */
+    return RTOS_CONTAINER_OF(p_node, rtos_task_t, prio_node);;
 }    
 
 

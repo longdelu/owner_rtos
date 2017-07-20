@@ -30,9 +30,22 @@ extern "C" {
     
 #include "c_lib.h"
 
+/**
+ * \name RTOS任务配置信息 
+ * @{
+ */    
+    
 
-/** \brief 任务的优先级序号 */    
+/** \brief 任务的优先级序号         */    
 #define   RTOS_PRIO_COUNT                32   
+    
+/** \brief 任务最大运行的时间片计数 */     
+#define   RTOS_SLICE_MAX                 10
+    
+    
+/** @} */
+    
+    
     
     
 

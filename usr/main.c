@@ -37,6 +37,10 @@ int g_task_flag1 = 0;
 /** \brief 任务2标记 */
 int g_task_flag2 = 0;
 
+
+/** \brief 任务3标记 */
+int g_task_flag3 = 0;
+
 /** \brief 任务优先级的标记位置结构全变量 */
 rtos_task_bitmap_t task_priobitmap = {0};
 
@@ -46,12 +50,16 @@ rtos_task_list_t rtos_task_delayedlist;
 /** \brief 任务堆栈 */
 taskstack_t run_task_stack_buf[TASK_STACK_SIZE];
 taskstack_t next_task_stack_buf[TASK_STACK_SIZE];
+taskstack_t third_task_stack_buf[TASK_STACK_SIZE];
 
 /** \brief 当前任务结构体 */
 rtos_task_t run_task;
 
-/** \brief 下一任务结构体 */
+/** \brief 下一个任务结构体 */
 rtos_task_t next_task;
+
+/** \brief 第三个任务结构体 */
+rtos_task_t third_task;
 
 /** \brief 当前任务：记录当前是哪个任务正在运行 */
 rtos_task_t * p_current_task;
@@ -59,10 +67,8 @@ rtos_task_t * p_current_task;
 /** \brief 下一个将即运行的任务：在进行任务切换前，先设置好该值，然后任务切换过程中会从中读取下一任务信息 */
 rtos_task_t * p_next_task;
 
-
-/** \brief 所有任务的指针数组：简单起见，只使用两个任务 */
-rtos_task_t * p_task_table[TASK_COUNT]; 
-
+/** \brief 同一个优先级任务的链表头结点 */
+rtos_task_list_t task_table[TASK_COUNT];
 
 /** \brief 空闲任务结构体 */
 rtos_task_t idle_task;
@@ -91,7 +97,7 @@ void idle_task_entry (void *p_arg)
  * \brief 当前任务入口函数
  * \note  系统节拍初始化函数要等任务初始化函数完成后才能调用
  */
-void run_task_entry (void *p_arg)
+void first_task_entry (void *p_arg)
 {    
     
     /* 系统节拍周期为10ms */
@@ -109,7 +115,21 @@ void run_task_entry (void *p_arg)
 /**
  * \brief 下一个任务入口函数
  */
-void next_task_entry (void *p_arg)
+void second_task_entry (void *p_arg)
+{    
+    for (; ;) {
+        
+        *((uint32_t*) p_arg) = 1;
+        rtos_sched_mdelay(10); 
+        *((uint32_t*) p_arg) = 0   ;
+        rtos_sched_mdelay(10);       
+    }
+}
+
+/**
+ * \brief 下一个任务入口函数
+ */
+void third_task_entry (void *p_arg)
 {    
     for (; ;) {
         
@@ -130,18 +150,22 @@ int main (void)
     NVIC_SetPriorityGrouping(0x03);
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(0x03,0x0F,0x0F));
     
-    /* 初始化调度器 */
+    /* 初始化调度锁 */
     rtos_task_schedlock_init();
     
-    /* 初始化任务位图数据结构体变量 */
+    /* 初始化任务任务就绪表位图数据 */
     rtos_task_bitmap_init(&task_priobitmap);
+    
+    /* 初始化优先级任务调度链表 */
+    rtos_task_sched_init(task_table);
     
     /* 初始化任务延时队列 */    
     rtos_task_delayed_init(&rtos_task_delayedlist);
     
     /* 任务初始化函数 */
-    rtos_task_init(&run_task, run_task_entry, &g_task_flag1, 0,  run_task_stack_buf, sizeof(run_task_stack_buf)); 
-    rtos_task_init(&next_task, next_task_entry, &g_task_flag2, 1,  next_task_stack_buf, sizeof(next_task_stack_buf));
+    rtos_task_init(&run_task,   first_task_entry,  &g_task_flag1, 0,  run_task_stack_buf,   sizeof(run_task_stack_buf)); 
+    rtos_task_init(&next_task,  second_task_entry, &g_task_flag2, 1,  next_task_stack_buf,  sizeof(next_task_stack_buf));
+    rtos_task_init(&third_task, third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
         
     /* 空闲任务初始化 */
     rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf));

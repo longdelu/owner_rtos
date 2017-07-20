@@ -45,11 +45,14 @@ typedef struct rtos_task {
     /** \brief 任务的延时结点，通过该结点将任务放置到延时队列中   */     
     dlist_node_t delay_node;
 
-
+    /** \brief 同一优先级任务链表，通过该结点将任务放置到同一优先级任务队列中   */     
+    dlist_node_t prio_node;
+       
     /** \brief 任务的状态   */      
     uint32_t task_state;
     
-    
+    /** \brief 任务的时间片计数   */      
+    uint32_t slice;    
     
 }rtos_task_t;
 
@@ -89,6 +92,16 @@ void rtos_task_init(rtos_task_t * task,
                     uint32_t task_prio, 
                     uint32_t *task_stack,
                     uint32_t task_stack_size);
+                    
+                    
+/**
+ * \brief 初始化优先级任务调度链表  
+ * 
+ * \param[in] p_task_table: 化先级任务调度表
+ *                    
+ * \return 无                  
+ */
+void rtos_task_sched_init(rtos_task_list_t *p_task_table);                    
                     
                     
 /**

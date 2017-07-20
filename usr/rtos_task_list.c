@@ -34,6 +34,63 @@ uint32_t rtos_task_list_count (rtos_task_list_t *p_rtos_task_list)
 }
 
 /**
+ * \brief 近回任务链表的首个结点 
+ */
+dlist_node_t *rtos_task_list_begin_get(rtos_task_list_t *p_rtos_task_list)
+{
+    if (p_rtos_task_list->count != 0) {
+        
+        return dlist_begin_get(&p_rtos_task_list->head_node);
+       
+    } else {        
+        return NULL;
+    }        
+}
+
+/**
+ * \brief 近回任务链表的最后一个结点 
+ */
+dlist_node_t *rtos_task_list_tail_get(rtos_task_list_t *p_rtos_task_list)
+{
+    if (p_rtos_task_list->count != 0) {
+        
+        return dlist_tail_get(&p_rtos_task_list->head_node);
+       
+    } else {        
+        return NULL;
+    }        
+}
+
+/**
+ * \brief 近回任务链表指定结点的上一个结点 
+ */
+dlist_node_t *rtos_task_list_prev_get(rtos_task_list_t *p_rtos_task_list, dlist_node_t *p_node)
+{
+    if (p_rtos_task_list->count != 0) {
+        
+        return dlist_prev_get(&p_rtos_task_list->head_node, p_node);
+       
+    } else {        
+        return NULL;
+    }        
+}
+
+/**
+ * \brief 近回任务链表指定结点的下一个结点 
+ */
+dlist_node_t *rtos_task_list_next_get(rtos_task_list_t *p_rtos_task_list, dlist_node_t *p_node)
+{
+    if (p_rtos_task_list->count != 0) {
+        
+        return dlist_next_get(&p_rtos_task_list->head_node, p_node);
+       
+    } else {        
+        return NULL;
+    }        
+}
+
+
+/**
  * \brief 移除任务链表中所有的结点
  */
 void rtos_task_list_remove_all (rtos_task_list_t *p_rtos_task_list)
