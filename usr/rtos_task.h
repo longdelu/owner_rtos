@@ -22,6 +22,9 @@ extern "C" {
 /** \brief 任务处于延时状态 */   
 #define RTOS_TASK_STATE_DELAYED    (1UL << 1)     
     
+/** \brief 任务处于挂起状态 */   
+#define RTOS_TASK_STATE_SUSPEND    (1UL << 2)   
+    
 /* Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
 typedef uint32_t taskstack_t;
     
@@ -52,8 +55,11 @@ typedef struct rtos_task {
     uint32_t task_state;
     
     /** \brief 任务的时间片计数   */      
-    uint32_t slice;    
-    
+    uint32_t slice;   
+
+    /** \brief 任务被挂起的次数   */      
+    uint32_t suspend_cnt;    
+        
 }rtos_task_t;
 
 
@@ -174,6 +180,22 @@ void rtos_task_add_delayed_list (rtos_task_t * p_task, uint32_t delay_ticks);
  * \return 无  
  */
 void rtos_task_del_delayed_list (rtos_task_t *p_task);
+
+
+/**
+ * \brief 挂起任务
+ * \param[in] p_task: 任务结构体指针   
+ * \return 无 
+ */
+void rtos_task_suspend (rtos_task_t *p_task);
+
+
+/**
+ * \brief 挂起任务
+ * \param[in] p_task: 任务结构体指针   
+ * \return 无 
+ */
+void rtos_task_wakeup (rtos_task_t *p_task);
 
 
 #ifdef __cplusplus

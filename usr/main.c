@@ -108,12 +108,6 @@ void first_task_entry (void *p_arg)
      }
 }
 
-//void delay ()
-//{
-//    int i;
-//    for (i = 0; i < 0xFF; i++) {}
-//}
-
 /**
  * \brief 下一个任务入口函数
  */

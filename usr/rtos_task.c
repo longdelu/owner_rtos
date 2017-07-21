@@ -95,6 +95,8 @@ void rtos_task_init(rtos_task_t *task,
     
     task->task_state     = RTOS_TASK_STATE_REDDY;                  // 设置任务为就绪状态 
     
+    task->suspend_cnt    = 0;                                      // 初始挂起次数为0
+    
     dlist_init(&task->delay_node);                                 // 初始化延时队列
     dlist_init(&task->prio_node);                                  // 初始化同一优先级任务队列
     
@@ -123,11 +125,12 @@ void rtos_task_sched_ready(rtos_task_t *task)
  */
 void rtos_task_sched_unready(rtos_task_t *task)
 {
+    /* 同一优先级的任务不可能同时处于任务延时队列及任务优先级队列当中 */
     rtos_task_list_remove(&task_table[task->prio], &(task->prio_node));
     
     if (rtos_task_list_count(&task_table[task->prio]) == 0) {
     
-        /* 只能该优先级的任务链表上没有任何任务时，才清楚就绪表 */
+        /* 只能该优先级的任务链表上没有任何任务时，才清除就绪表 */
         rtos_task_bitmap_clr(&task_priobitmap,task->prio);
     }        
 }
@@ -144,8 +147,6 @@ void rtos_task_sched_init(rtos_task_list_t *p_task_table)
          rtos_task_list_init(&p_task_table[i]);
     }    
 }  
-
-
 
 
 /**
@@ -250,6 +251,94 @@ void rtos_task_del_delayed_list (rtos_task_t *p_task)
            
 }
 
+
+/**
+ * \brief 挂起任务
+ */
+void rtos_task_suspend (rtos_task_t *p_task)
+{
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry(); 
+    
+    /** 
+     * 
+     *\note 这个是设计策略的问题，延时的任务也是可以允许挂起的,简单思路是
+     *       先设个标记，等延时结束期望加到就绪队列时检查这个标记，有标记
+     *       就在此时挂起而不是加入就绪队列。
+     */ 
+    
+    /* 不允许对已经进入延时状态的任务挂起 */
+    if (!(p_task->task_state & RTOS_TASK_STATE_DELAYED)) 
+    {
+        /* 
+         *  增加挂起计数，仅当该任务被执行第一次挂起操作时，才考虑是否
+         *  要执行任务切换操作
+         */
+        if (p_task->suspend_cnt == 0)
+        {
+           
+            /* 挂起的最大次数为4294967295UL */
+            if (p_task->suspend_cnt <= 4294967295UL) {
+                p_task->suspend_cnt++;                
+            }
+            /*  设置挂起标志 */
+            p_task->task_state |= RTOS_TASK_STATE_SUSPEND;
+
+            /* 
+             * 挂起方式很简单，就是将其从就绪队列中移除，这样调度器就不会发现他
+             * 也就没法切换到该任务运行
+             */
+            rtos_task_sched_unready(p_task);
+
+            /* 当然，这个挂起任务可能是自己，那么就切换到其它任务 */
+            if (p_task == p_current_task)
+            {
+                rtos_task_sched();
+            }
+        }
+    }
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+           
+}
+
+
+/**
+ * \brief 挂起任务
+ */
+void rtos_task_wakeup (rtos_task_t *p_task)
+{
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+    
+    /* 检查任务是否处于挂起状态 */
+    if (p_task->task_state & RTOS_TASK_STATE_SUSPEND) {
+        
+        /* 递减挂起计数，如果为0了，则清除挂起标志，同时设置进入就绪状态 */
+        if (--p_task->suspend_cnt == 0) {
+            
+            /*  清楚挂起标志 */
+            p_task->task_state &= ~RTOS_TASK_STATE_SUSPEND;
+            
+            /* 
+             * 同时将任务放回就绪队列中
+             */
+            rtos_task_sched_ready(p_task);
+            
+            /* 取消挂起的过程中，可能有更高优先级的任务就绪，执行一次任务调度 */
+            rtos_task_sched();
+            
+        }
+        
+    }
+
+        
+
+    /* 退出临界区 */
+    rtos_task_critical_exit(status);     
+}
 
 
 
