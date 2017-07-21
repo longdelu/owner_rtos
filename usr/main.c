@@ -77,10 +77,6 @@ rtos_task_t idle_task;
 taskstack_t idle_task_stack_buf[TASK_STACK_SIZE];
 
 
-
-
-
-
 /**
  * \brief 空闲任务入口函数
  */
@@ -112,6 +108,12 @@ void first_task_entry (void *p_arg)
      }
 }
 
+//void delay ()
+//{
+//    int i;
+//    for (i = 0; i < 0xFF; i++) {}
+//}
+
 /**
  * \brief 下一个任务入口函数
  */
@@ -120,9 +122,9 @@ void second_task_entry (void *p_arg)
     for (; ;) {
         
         *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(10); 
+        rtos_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(10);       
+        rtos_mdelay(10);       
     }
 }
 
@@ -134,9 +136,9 @@ void third_task_entry (void *p_arg)
     for (; ;) {
         
         *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(10); 
+        rtos_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(10);       
+        rtos_mdelay(10);      
     }
 }
 

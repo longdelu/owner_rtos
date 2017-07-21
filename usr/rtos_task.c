@@ -91,6 +91,8 @@ void rtos_task_init(rtos_task_t *task,
        
     task->prio           = task_prio;                              // 设置任务的优先级 
     
+    task->slice          = RTOS_SLICE_MAX;                         // 初始化任务的时间片计数
+    
     task->task_state     = RTOS_TASK_STATE_REDDY;                  // 设置任务为就绪状态 
     
     dlist_init(&task->delay_node);                                 // 初始化延时队列

@@ -41,11 +41,16 @@ uint32_t rtos_get_systick(void)
 /**
  * \brief  操作系统普通延时，没有任务调度, 以10ms为一个时基单位
  */
-void rtos_mdelay (uint32_t ms) { 
+void rtos_mdelay (int32_t ms) { 
     
-    uint32_t ms_end = rtos_systick + ms;
+    int32_t ms_end = rtos_systick + ms;
     
-    while ((ms_end - rtos_systick) > 0) {
+    /* 
+     * 注意这里需要强制转换成int32_t类型，否则它运算结果是以无符位32位来处理的，如果在相减为0时
+     * 有一个中断来打断执行的时候会出现问题，即刚为0时，相减没有完成，被中断打断，此时rtos_systick被增加，则
+     * ms_end - rtos_systick不等0了，而是一个很大的无符号数
+     */
+    while (((int32_t)(ms_end - rtos_systick)) > 0) {
         ;
     }
 }

@@ -27,7 +27,7 @@ uint32_t rtos_get_systick (void);
  *
  * \return    нч
  */      
-void rtos_mdelay (uint32_t ms);   
+void rtos_mdelay (int32_t ms);   
 
 
 /**
