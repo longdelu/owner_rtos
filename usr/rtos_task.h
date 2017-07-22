@@ -11,9 +11,7 @@ extern "C" {
 #include "rtos_task_list.h"
 #include "rtos_list.h"
     
-/**
- * \brief 任务数量
- */    
+/** \brief 任务数量 */    
 #define TASK_COUNT    RTOS_PRIO_COUNT  
     
 /** \brief 任务处于就绪状态 */   
@@ -27,16 +25,23 @@ extern "C" {
 
 /** \brief 任务被请求删除标记 */   
 #define RTOS_TASK_STATE_RED_DEL    (1UL << 3)   
+
+/** \brief 任务处于等待事件状态 */
+#define RTOS_TASK_EVENT_WAIT_MASK  (0xFF << 16)
     
-/* Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
+/** \brief Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
 typedef uint32_t taskstack_t;
+
+
+/** \brief 事件控制块前置声明 */
+struct rtos_task_event;
     
 typedef struct rtos_task {
    
     /** \brief 堆栈栈顶地址   */    
     uint32_t *task_stack_top;
     
-    /** \brief 堆栈的起即地址 */
+    /** \brief 堆栈的起始地址 */
     uint32_t * stack_base;
 
     /** \brief 堆栈的总容量   */
@@ -51,8 +56,11 @@ typedef struct rtos_task {
     /** \brief 任务的延时结点，通过该结点将任务放置到延时队列中   */     
     dlist_node_t delay_node;
 
-    /** \brief 同一优先级任务链表，通过该结点将任务放置到同一优先级任务队列中   */     
+    /** \brief 同一优先级任务链表，通过该结点将任务放置到同一优先级任务队列中，用于就绪表   */     
     dlist_node_t prio_node;
+       
+    /** \brief 任务等待事件的结点，通过该结点将任务放置等待事件链表中  */     
+    dlist_node_t event_node;
        
     /** \brief 任务的状态   */      
     uint32_t task_state;
@@ -70,8 +78,18 @@ typedef struct rtos_task {
     void * clean_param;
 
     /** \brief 请求删除标志，非0表示请求删除*/
-    uint8_t req_delete_flag;    
-           
+    uint8_t req_delete_flag; 
+
+    /** \brief 任务正在等待的事件类型 */
+    struct rtos_task_event *p_event;
+    
+    /** \brief 等待事件的消息存储位置 */
+    void *p_event_msg;
+    
+    /** \brief 等待事件的结果 */
+    int32_t event_wait_result;
+
+            
 }rtos_task_t;
 
 

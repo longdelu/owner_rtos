@@ -25,6 +25,7 @@
 #include "rtos_task_critical.h"
 #include "rtos_task_bitmap.h"
 #include "rtos_config.h"
+#include "rtos_task_event.h"
 
 
 /** \brief  任务延时队列 */
@@ -76,6 +77,14 @@ static void __rtos_task_delay_tick_handler (void)
         p_task = RTOS_CONTAINER_OF(p_tmp, rtos_task_t, delay_node);
         
         if (--p_task->delay_ticks == 0) {
+            
+             /* 如果任务还处于等待事件的状态，则将其从事件等待队列中唤醒 */
+            if (p_task->p_event) {
+                
+                /* 此时，消息为空，等待结果为超时 */
+                rtos_task_event_del(p_task, NULL, -RTOS_TIMEOUT);
+                
+            }
             
             /* 将任务从延时队列中移除 */
             rtos_task_wake_up_delayed_list(p_task);

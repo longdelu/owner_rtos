@@ -45,20 +45,16 @@ extern "C" {
     
 /** @} */
     
-    
-    
-    
+/**
+ * \name RTOS 操作结果 
+ * @{
+ */     
+#define  RTOS_OK                         0   /** \brief 操作成功OK */               
+#define  RTOS_ERROR                      1   /** \brief 操作失败 */
+#define  RTOS_EINVAILD                   2   /** \brief 操作无效 */  
+#define  RTOS_TIMEOUT                    3   /** \brief 操作超时 */
 
-/** \brief 操作成功OK */   
-#define  RTOS_OK                         0
-
-    
-/** \brief 操作失败 */
-#define  RTOS_ERROR                      1  
-
-
-/** \brief 操作无效 */
-#define  RTOS_EINVAILD                   2     
+/** @} */
     
     
 #ifdef __cplusplus

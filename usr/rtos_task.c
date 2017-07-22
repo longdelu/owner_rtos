@@ -28,6 +28,7 @@
 #include "rtos_task_critical.h"
 #include "rtos_task_bitmap.h"
 #include "rtos_config.h"
+#include "rtos_task_event.h"
 
 /** \brief 任务优先级的标记位置结构全变量 */
 extern rtos_task_bitmap_t task_priobitmap;
@@ -102,8 +103,13 @@ void rtos_task_init(rtos_task_t *task,
     task->pfn_clean      = NULL;                                   // 设置清理函数
     task->req_delete_flag = 0;                                     // 请求删除标记
     
-    dlist_init(&task->delay_node);                                 // 初始化延时队列
-    dlist_init(&task->prio_node);                                  // 初始化同一优先级任务队列
+    dlist_init(&task->delay_node);                                 // 初始化延时队列结点
+    dlist_init(&task->prio_node);                                  // 初始化同一优先级任务队列结点，用于就绪表
+    dlist_init(&task->event_node);                                 // 初始化等待事件延时结点  
+    
+    task->p_event = NULL;                                          // 没有等待事件       
+    task->p_event_msg = NULL;                                      // 没有存储等待事件的消息
+    task->event_wait_result  =  RTOS_EVENT_TYPE_UNKNOW;            // 没有等待事件错误
     
     
     /*
@@ -119,7 +125,7 @@ void rtos_task_init(rtos_task_t *task,
  */
 void rtos_task_sched_ready(rtos_task_t *task)
 {
-    
+    /* 仅仅在同一优先级列表尾部插入任务 */
     rtos_task_list_add_tail(&task_table[task->prio], &(task->prio_node)); 
     
     rtos_task_bitmap_set(&task_priobitmap,task->prio); 
@@ -241,8 +247,15 @@ void rtos_task_add_delayed_list (rtos_task_t *p_task, uint32_t delay_ticks)
     
     rtos_task_list_add_tail(&rtos_task_delayedlist, &p_task->delay_node);
 
-    p_task->task_state |= RTOS_TASK_STATE_DELAYED;    
-           
+    p_task->task_state |= RTOS_TASK_STATE_DELAYED;
+
+    
+   /*　表示被删除的任务重新加入到延时队列中 */
+   if ( p_task->task_state & RTOS_TASK_STATE_RED_DEL) {
+       
+       p_task->task_state &= ~RTOS_TASK_STATE_RED_DEL;  
+   }
+          
 }
 
 
@@ -259,7 +272,7 @@ void rtos_task_wake_up_delayed_list (rtos_task_t *p_task)
 
 
 /**
- * \brief 将延时的任务从延时队列中删除
+ * \brief 将延时的任务从延时队列中删除,
  */
 void rtos_task_del_delayed_list (rtos_task_t *p_task)
 {
@@ -324,7 +337,7 @@ void rtos_task_suspend (rtos_task_t *p_task)
 
 
 /**
- * \brief 挂起任务
+ * \brief 唤醒挂起任务，只是把任务加入到同一优先级的任务链表的尾部，并不保证插入到以前的对应的位置
  */
 void rtos_task_wakeup (rtos_task_t *p_task)
 {
