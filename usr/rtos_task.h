@@ -24,6 +24,9 @@ extern "C" {
     
 /** \brief 任务处于挂起状态 */   
 #define RTOS_TASK_STATE_SUSPEND    (1UL << 2)   
+
+/** \brief 任务被请求删除标记 */   
+#define RTOS_TASK_STATE_RED_DEL    (1UL << 3)   
     
 /* Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
 typedef uint32_t taskstack_t;
@@ -59,8 +62,37 @@ typedef struct rtos_task {
 
     /** \brief 任务被挂起的次数   */      
     uint32_t suspend_cnt;    
-        
+    
+    /** \brief 任务被删除时调用的清理函数 */
+    void (*pfn_clean) (void * p_par);
+
+    /** \brief 传递给清理函数的参数 */
+    void * clean_param;
+
+    /** \brief 请求删除标志，非0表示请求删除*/
+    uint8_t req_delete_flag;    
+           
 }rtos_task_t;
+
+
+typedef struct rtos_task_info {
+    /** \brief 任务的滴答计数   */     
+    uint32_t delay_ticks;
+    
+    /** \brief 任务的优先级   */     
+    uint32_t task_prio;
+    
+    /** \brief 任务的状态   */   
+    uint32_t task_state;
+    
+    /** \brief 任务的时间片计数   */ 
+    uint32_t task_slice;
+    
+    /** \brief 任务被挂起的次数   */    
+    uint32_t suspend_cnt;
+    
+   
+}rtos_task_info_t;
 
 
 /** \brief 当前任务：记录当前是哪个任务正在运行 */
@@ -174,8 +206,16 @@ void rtos_task_delayed_init (rtos_task_list_t *p_rtos_task_delayed_list);
 void rtos_task_add_delayed_list (rtos_task_t * p_task, uint32_t delay_ticks);
 
 
+
 /**
- * \brief 将任务从延时队列中唤醒
+ * \brief 将延时的任务从延时队列中唤醒
+ * \param[in] p_task: 任务结构体指针   
+ * \return 无  
+ */
+void rtos_task_wake_up_delayed_list (rtos_task_t *p_task);
+
+/**
+ * \brief 将延时的任务从延时队列中删除
  * \param[in] p_task: 任务结构体指针   
  * \return 无  
  */
@@ -196,6 +236,57 @@ void rtos_task_suspend (rtos_task_t *p_task);
  * \return 无 
  */
 void rtos_task_wakeup (rtos_task_t *p_task);
+
+
+/**
+ * \brief 设置任务被删除时调用的清理函数
+ * \param[in] p_task: 任务结构体指针 
+ * \param[in] pfn_clean: 指向任务清理函数的函数指针   
+ * \param[in] p_par: 传递给清理函数的参数   
+ * \return 无 
+ */
+void rtos_task_set_clean_call_fuc (rtos_task_t *p_task, void (*pfn_clean)(void * p_par), void * p_par);
+
+
+/**
+ * \brief 强制删除指定的任务
+ * \param[in] p_task: 任务结构体指针   
+ * \return 无 
+ */
+void rtos_task_force_del (rtos_task_t *p_task);
+
+
+/**
+ * \brief 请求删除某个任务，由任务自己决定是否删除自己
+ * \param[in] p_task: 任务结构体指针   
+ * \return 无 
+ */
+void rtos_task_req_del (rtos_task_t *p_task);
+
+
+/**
+ * \brief 查询是否已经被请求删除自已
+ * \param[in] 无   
+ * \return 无 
+ */
+uint32_t rtos_task_req_del_flag_check (void);
+
+
+/**
+ * \brief 任务删除自身
+ * \param[in] 无
+ * \return 无 
+ */
+void rtos_task_del_self (void);
+
+
+/**
+ * \brief 获取任务相关信息
+ * \param[in] p_task: 任务结构体指针
+ * \param[in] p_task_info: 任务信息结构体指针    
+ * \return 无 
+ */
+void rtos_task_info_get (rtos_task_t *p_task, rtos_task_info_t *p_task_info);
 
 
 #ifdef __cplusplus

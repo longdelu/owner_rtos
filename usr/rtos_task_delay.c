@@ -65,7 +65,7 @@ void rtos_sched_mdelay (uint32_t ms)
     /* 插入任务延时队列，并设置任务的延时滴答 */
     rtos_task_add_delayed_list(p_current_task, ms);
     
-    /* 将任务从就绪表中移除 */
+    /* 将任务从就绪表中移除,即不在同一优先级的队列时时里面了 */
     rtos_task_sched_unready(p_current_task);
     
     

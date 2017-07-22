@@ -78,7 +78,7 @@ static void __rtos_task_delay_tick_handler (void)
         if (--p_task->delay_ticks == 0) {
             
             /* 将任务从延时队列中移除 */
-            rtos_task_del_delayed_list(p_task);
+            rtos_task_wake_up_delayed_list(p_task);
             
             /* 将任务登记到就绪列表中 */
             rtos_task_sched_ready(p_task);

@@ -97,8 +97,14 @@ void rtos_task_init(rtos_task_t *task,
     
     task->suspend_cnt    = 0;                                      // 初始挂起次数为0
     
+    
+    task->clean_param    = NULL;                                   // 设置传递给清理函数的参数
+    task->pfn_clean      = NULL;                                   // 设置清理函数
+    task->req_delete_flag = 0;                                     // 请求删除标记
+    
     dlist_init(&task->delay_node);                                 // 初始化延时队列
     dlist_init(&task->prio_node);                                  // 初始化同一优先级任务队列
+    
     
     /*
      * \note 调用该函数，一定要保证该优先级的任务头结点已经有正确的指向
@@ -243,12 +249,24 @@ void rtos_task_add_delayed_list (rtos_task_t *p_task, uint32_t delay_ticks)
 /**
  * \brief 将任务从延时队列中唤醒
  */
-void rtos_task_del_delayed_list (rtos_task_t *p_task)
+void rtos_task_wake_up_delayed_list (rtos_task_t *p_task)
 {
     rtos_task_list_remove(&rtos_task_delayedlist, &p_task->delay_node);
 
     p_task->task_state &= ~RTOS_TASK_STATE_REDDY;    
            
+}
+
+
+/**
+ * \brief 将延时的任务从延时队列中删除
+ */
+void rtos_task_del_delayed_list (rtos_task_t *p_task)
+{
+    
+    rtos_task_list_remove(&rtos_task_delayedlist, &p_task->delay_node);
+
+    p_task->task_state |= RTOS_TASK_STATE_RED_DEL;       
 }
 
 
@@ -339,6 +357,153 @@ void rtos_task_wakeup (rtos_task_t *p_task)
     /* 退出临界区 */
     rtos_task_critical_exit(status);     
 }
+
+/**
+ * \brief 设置任务被删除时调用的清理函数
+ */
+void rtos_task_set_clean_call_fuc (rtos_task_t *p_task, void (*pfn_clean)(void * p_par), void * p_par)
+{
+    p_task->clean_param =  p_par;
+    p_task->pfn_clean = pfn_clean;
+        
+}
+
+
+/**
+ * \brief 强制删除指定的任务
+ */
+void rtos_task_force_del (rtos_task_t *p_task)
+{
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+    
+    /*  如果任务处于延时状态，则从延时队列中删除 */
+    if (p_task->task_state & RTOS_TASK_STATE_DELAYED) {
+        rtos_task_del_delayed_list(p_task);
+    }
+    
+    /* 如果任务不处于挂起状态，那么就是就绪态，从就绪表中删除 */
+    if (p_task->task_state & RTOS_TASK_STATE_SUSPEND) {
+        
+         rtos_task_sched_unready(p_task);
+    }
+    
+    /* 删除时，如果有设置清理函数，则调用清理函数 */
+    if (p_task->pfn_clean) {
+        p_task->pfn_clean(p_task->clean_param);
+    }
+    
+    /* 如果删除的是自己，那么需要切换至另一个任务，所以执行一次任务调度 */
+    if (p_current_task == p_task) {
+        /* 取消挂起的过程中，可能有更高优先级的任务就绪，执行一次任务调度 */
+        rtos_task_sched();
+    }
+        
+           
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+        
+}
+
+
+/**
+ * \brief 请求删除某个任务，由任务自己决定是否删除自己
+ */
+void rtos_task_req_del (rtos_task_t *p_task)
+{
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+ 
+    p_task->req_delete_flag = 1;
+
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+        
+}
+
+
+/**
+ * \brief 查询是否已经被请求删除自已
+ */
+uint32_t rtos_task_req_del_flag_check (void)
+{
+    uint32_t req_del_flag = 0;
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+ 
+    /* 获取请求删除的标记 */
+    req_del_flag = p_current_task->req_delete_flag;
+
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+    
+    
+    return req_del_flag;
+        
+}
+
+/**
+ * \brief 任务删除自身
+ */
+void rtos_task_del_self (void)
+{
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+ 
+    /*
+     * 任务在调用该函数时，必须是处于就绪状态，不可能处于延时或挂起等其它状态
+     * 所以，只需要从就绪队列中移除即可   
+     */    
+    rtos_task_sched_unready(p_current_task);
+    
+    
+    /* 删除时，如果有设置清理函数，则调用清理函数 */
+    if (p_current_task->pfn_clean) {
+        p_current_task->pfn_clean(p_current_task->clean_param);
+    }
+    
+    /*　接下来肯定时切换到其它任务去运行 */
+    rtos_task_sched(); 
+
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+           
+}
+
+
+/**
+ * \brief 获取任务相关信息
+ */
+void rtos_task_info_get (rtos_task_t *p_task, rtos_task_info_t *p_task_info)
+{
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+      
+    p_task_info->delay_ticks = p_task->delay_ticks;         // 延时信息
+    p_task_info->task_prio   = p_task->prio;                // 任务优先级
+    p_task_info->task_state  = p_task->task_state;          // 任务状态
+    p_task_info->task_slice  = p_task->slice;               // 剩余时间片
+    p_task_info->suspend_cnt = p_task->suspend_cnt;         // 被挂起的次数
+
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+           
+}
+
+     
+    
+
+
+
+
+
+
+
 
 
 

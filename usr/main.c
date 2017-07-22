@@ -37,9 +37,11 @@ int g_task_flag1 = 0;
 /** \brief 任务2标记 */
 int g_task_flag2 = 0;
 
-
 /** \brief 任务3标记 */
 int g_task_flag3 = 0;
+
+/** \brief 任务4标记 */
+int g_task_flag4 = 0; 
 
 /** \brief 任务优先级的标记位置结构全变量 */
 rtos_task_bitmap_t task_priobitmap = {0};
@@ -48,18 +50,22 @@ rtos_task_bitmap_t task_priobitmap = {0};
 rtos_task_list_t rtos_task_delayedlist;
 
 /** \brief 任务堆栈 */
-taskstack_t run_task_stack_buf[TASK_STACK_SIZE];
-taskstack_t next_task_stack_buf[TASK_STACK_SIZE];
+taskstack_t first_task_stack_buf[TASK_STACK_SIZE];
+taskstack_t second_task_stack_buf[TASK_STACK_SIZE];
 taskstack_t third_task_stack_buf[TASK_STACK_SIZE];
+taskstack_t forth_task_stack_buf[TASK_STACK_SIZE];
 
 /** \brief 当前任务结构体 */
-rtos_task_t run_task;
+rtos_task_t first_task;
 
 /** \brief 下一个任务结构体 */
-rtos_task_t next_task;
+rtos_task_t second_task;
 
 /** \brief 第三个任务结构体 */
 rtos_task_t third_task;
+
+/** \brief 第四个任务结构体 */
+rtos_task_t forth_task;
 
 /** \brief 当前任务：记录当前是哪个任务正在运行 */
 rtos_task_t * p_current_task;
@@ -67,14 +73,21 @@ rtos_task_t * p_current_task;
 /** \brief 下一个将即运行的任务：在进行任务切换前，先设置好该值，然后任务切换过程中会从中读取下一任务信息 */
 rtos_task_t * p_next_task;
 
-/** \brief 同一个优先级任务的链表头结点 */
-rtos_task_list_t task_table[TASK_COUNT];
-
 /** \brief 空闲任务结构体 */
 rtos_task_t idle_task;
 
 /** \brief 空闲任务堆栈 */
 taskstack_t idle_task_stack_buf[TASK_STACK_SIZE];
+
+/** \brief 同一个优先级任务的链表头结点 */
+rtos_task_list_t task_table[TASK_COUNT];
+
+/* 第一个任务的回调清理函数 */
+void first_task_del_cal_fuc (void * p_par) 
+{
+    g_task_flag1 = 0;
+}
+
 
 
 /**
@@ -99,42 +112,85 @@ void first_task_entry (void *p_arg)
     /* 系统节拍周期为10ms */
     rtos_systick_init(10); 
     
+    rtos_task_set_clean_call_fuc(p_current_task, first_task_del_cal_fuc, NULL);
+    
      for (; ;) {
          
         *((uint32_t*) p_arg) = 1;
-        rtos_task_suspend(&run_task); 
+        rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0;
-        rtos_task_suspend(&run_task);                  
+        rtos_sched_mdelay(10);              
      }
 }
 
 /**
- * \brief 下一个任务入口函数
+ * \brief 第二个任务入口函数
  */
 void second_task_entry (void *p_arg)
-{    
+{   
+    uint8_t task_del_flg = 0;    
     for (; ;) {
         
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(10); 
-        rtos_task_wakeup(&run_task);
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(10);  
-        rtos_task_wakeup(&run_task);        
+        rtos_sched_mdelay(10); 
+          
+        if (!task_del_flg) {
+            
+            rtos_task_force_del(&first_task);
+            
+            task_del_flg = 1;
+
+        }            
     }
 }
 
 /**
- * \brief 下一个任务入口函数
+ * \brief 第三个任务入口函数
  */
 void third_task_entry (void *p_arg)
 {    
     for (; ;) {
         
+        /* 检查是否删除自已 */
+        if (rtos_task_req_del_flag_check()) {
+           
+            /* 做一些清理工作 */            
+            *((uint32_t*) p_arg) = 0;   
+            
+            /* 主动删除自已 */
+            rtos_task_del_self();
+        }
+        
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
         rtos_sched_mdelay(10);      
+    }
+}
+
+/**
+ * \brief 第四个任务入口函数
+ */
+void forth_task_entry (void *p_arg)
+{    
+    uint8_t task_del_flg = 0;    
+    
+    for (; ;) {
+        
+        *((uint32_t*) p_arg) = 1;
+        rtos_sched_mdelay(10); 
+        *((uint32_t*) p_arg) = 0   ;
+        rtos_sched_mdelay(10); 
+          
+        if (!task_del_flg) {
+            
+            rtos_task_req_del(&third_task);
+            
+            task_del_flg = 1;
+
+        }            
     }
 }
 
@@ -161,9 +217,10 @@ int main (void)
     rtos_task_delayed_init(&rtos_task_delayedlist);
     
     /* 任务初始化函数 */
-    rtos_task_init(&run_task,   first_task_entry,  &g_task_flag1, 0,  run_task_stack_buf,   sizeof(run_task_stack_buf)); 
-    rtos_task_init(&next_task,  second_task_entry, &g_task_flag2, 1,  next_task_stack_buf,  sizeof(next_task_stack_buf));
-    rtos_task_init(&third_task, third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
+    rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
+    rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
+    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
+    rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf));
         
     /* 空闲任务初始化 */
     rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf));
