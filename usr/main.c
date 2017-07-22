@@ -102,9 +102,9 @@ void first_task_entry (void *p_arg)
      for (; ;) {
          
         *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(10); 
+        rtos_task_suspend(&run_task); 
         *((uint32_t*) p_arg) = 0;
-        rtos_sched_mdelay(10);                  
+        rtos_task_suspend(&run_task);                  
      }
 }
 
@@ -116,9 +116,11 @@ void second_task_entry (void *p_arg)
     for (; ;) {
         
         *((uint32_t*) p_arg) = 1;
-        rtos_mdelay(10); 
+        rtos_sched_mdelay(10); 
+        rtos_task_wakeup(&run_task);
         *((uint32_t*) p_arg) = 0   ;
-        rtos_mdelay(10);       
+        rtos_sched_mdelay(10);  
+        rtos_task_wakeup(&run_task);        
     }
 }
 
@@ -130,9 +132,9 @@ void third_task_entry (void *p_arg)
     for (; ;) {
         
         *((uint32_t*) p_arg) = 1;
-        rtos_mdelay(10); 
+        rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_mdelay(10);      
+        rtos_sched_mdelay(10);      
     }
 }
 
