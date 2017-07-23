@@ -24,10 +24,15 @@ extern "C" {
 #define RTOS_TASK_STATE_SUSPEND    (1UL << 2)   
 
 /** \brief 任务被请求删除标记 */   
-#define RTOS_TASK_STATE_RED_DEL    (1UL << 3)   
+#define RTOS_TASK_STATE_RED_DEL    (1UL << 3)  
+
+
 
 /** \brief 任务处于等待事件状态 */
 #define RTOS_TASK_EVENT_WAIT_MASK  (0xFF << 16)
+
+/** \brief 任务处于等待事件状态 */
+#define RTOS_TASK_TEST_EVENT_WAIT  (1UL << 16)
     
 /** \brief Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
 typedef uint32_t taskstack_t;

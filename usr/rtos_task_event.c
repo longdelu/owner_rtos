@@ -105,6 +105,8 @@ rtos_task_t  *rtos_task_event_wake_up (rtos_task_event_t *p_event, void *p_event
         if (p_task->delay_ticks != 0) {
             
             rtos_task_wake_up_delayed_list(p_task);
+            
+            /* todo: 可以加入唤醒超时等待的事件上任务，并使其delay_ticks为0 */
         }
         
         /* 将任务加入就绪队列 */
@@ -144,8 +146,8 @@ void rtos_task_event_del (rtos_task_t  *p_task, void *p_event_msg, int32_t event
          p_task->event_wait_result = event_result;                       /* 设置事件的等待结果             */  
         
         
-        /* 将任务加入就绪队列 */
-        rtos_task_sched_ready(p_task) ;
+        /* 不能在这里将任务加入就绪队列 */
+      //  rtos_task_sched_ready(p_task) ;
 
     }        
 

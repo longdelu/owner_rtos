@@ -70,7 +70,7 @@ void rtos_task_event_init (rtos_task_event_t *p_event, rtos_task_event_type_t ev
  * \param[in] p_task: 任务结构体指针  
  * \param[in] p_event: RTOS任务事件控制块的指针
  * \param[in] p_event_msg: 事件消息存储的具体位置
- * \param[in] time_out: 等待多长时间
+ * \param[in] time_out: 等待多长时间,带超时的等待，超时值时其delay_ticks必为0；
  * \return  无
  */  
 void rtos_task_event_wait (rtos_task_t *p_task, 
@@ -80,7 +80,7 @@ void rtos_task_event_wait (rtos_task_t *p_task,
                            uint32_t time_out);   
     
 /**
- * \brief 从指定事件控制块上唤醒首个等待的RTOS任务，调用这个唤醒事件的函数，其task->delay_ticks必须为0；
+ * \brief 从指定事件控制块上唤醒首个等待的RTOS任务(本质是把它重新加入到就绪队列中），调用这个唤醒事件的函数，其task->delay_ticks必须为0；
  * \param[in] p_event: RTOS任务事件控制块的指针
  * \param[in] p_event_msg: 事件消息存储的具体位置
  * \param[in] event_result: 事件等待的结果

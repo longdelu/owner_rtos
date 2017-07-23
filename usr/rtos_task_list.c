@@ -157,13 +157,17 @@ dlist_node_t * rtos_task_list_remove_first (rtos_task_list_t * p_rtos_task_list)
     
     int ret = 0;
     
+    dlist_head_t *p_node =  p_rtos_task_list->head_node.p_next;
+  
+    /* É¾³ý½áµã */    
     ret = dlist_del(&p_rtos_task_list->head_node, p_rtos_task_list->head_node.p_next);
     
     if (ret == RTOS_OK) {
         
         p_rtos_task_list->count--;
         
-        return p_rtos_task_list->head_node.p_next ;
+        return p_node;
+        
     } else {
         return NULL;
     }
@@ -179,15 +183,17 @@ dlist_node_t * rtos_task_list_remove_last (rtos_task_list_t * p_rtos_task_list)
     
     int ret = 0;
     
+    dlist_head_t *p_node = p_rtos_task_list->head_node.p_prev;
+    
     ret = dlist_del(&p_rtos_task_list->head_node, p_rtos_task_list->head_node.p_prev);
     
     if (ret == RTOS_OK) {
         
         p_rtos_task_list->count--;
         
-        return p_rtos_task_list->head_node.p_prev ;
+        return p_node;
         
-    } else {
+    } else {                                     
         return NULL;
     }
 }

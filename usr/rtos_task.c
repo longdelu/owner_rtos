@@ -250,7 +250,7 @@ void rtos_task_add_delayed_list (rtos_task_t *p_task, uint32_t delay_ticks)
     p_task->task_state |= RTOS_TASK_STATE_DELAYED;
 
     
-   /*　表示被删除的任务重新加入到延时队列中 */
+   /*　表示被删除的任务重新加入到延时队列中,重置任务所拥有的状态 */
    if ( p_task->task_state & RTOS_TASK_STATE_RED_DEL) {
        
        p_task->task_state &= ~RTOS_TASK_STATE_RED_DEL;  
@@ -383,7 +383,7 @@ void rtos_task_set_clean_call_fuc (rtos_task_t *p_task, void (*pfn_clean)(void *
 
 
 /**
- * \brief 强制删除指定的任务
+ * \brief 强制删除指定的任务（只能删除一次该任务，不能在调用该函数后再调用删除函数）
  */
 void rtos_task_force_del (rtos_task_t *p_task)
 {
@@ -459,7 +459,7 @@ uint32_t rtos_task_req_del_flag_check (void)
 }
 
 /**
- * \brief 任务删除自身
+ * \brief 任务删除自身(只能删除一次任务）
  */
 void rtos_task_del_self (void)
 {
