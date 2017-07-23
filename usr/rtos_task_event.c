@@ -124,7 +124,7 @@ rtos_task_t  *rtos_task_event_wake_up (rtos_task_event_t *p_event, void *p_event
 }
 
 /**
- * \brief 从指定事件控制块上删除等待的RTOS任务，
+ * \brief 从指定事件控制块上删除等待的RTOS任务
  */  
 void rtos_task_event_del (rtos_task_t  *p_task, void *p_event_msg, int32_t event_result) 
 {   
@@ -156,7 +156,82 @@ void rtos_task_event_del (rtos_task_t  *p_task, void *p_event_msg, int32_t event
     rtos_task_critical_exit(status);    
     
 
-}  
+}
+
+/**
+ * \brief 清除所有等待中的任务，将事件发送给所有任务
+ */ 
+uint32_t  rtos_task_event_all_remove (rtos_task_event_t *p_event, void *p_event_msg, int32_t event_result)
+{
+    rtos_task_t  *p_task = NULL;
+    
+    dlist_node_t *p_event_node = NULL;
+    
+    uint32_t count = 0;
+    
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+    
+    /* 获取等待中的任务数量 */
+    count = rtos_task_list_count(&p_event->event_wait_list);
+    
+        /* 取出该事件控制块等待队列中的第一个结点 */
+     while((p_event_node = rtos_task_list_remove_first(&p_event->event_wait_list)) != NULL) {
+        
+         /* 转换成对应的任务结构 */
+         p_task = RTOS_CONTAINER_OF(p_event_node, rtos_task_t, event_node);
+        
+         p_task->task_state       &= ~RTOS_TASK_EVENT_WAIT_MASK;         /* 标记任务未处于等待某种事件的状态 */ 
+         p_task->p_event           = NULL;                               /* 设置任务等待的事件结构         */
+         p_task->p_event_msg       = p_event_msg;                        /* 设置任务等待事件的消息存储位置 */   
+         p_task->event_wait_result = event_result;                       /* 设置事件的等待结果             */  
+        
+        /* 任务申请了超时等待，这里检查下，将其从延时队列中移除 */
+        if (p_task->delay_ticks != 0) {
+            
+            rtos_task_wake_up_delayed_list(p_task);
+            
+            /* todo: 可以加入唤醒超时等待的事件上任务，并使其delay_ticks为0 */
+        }
+        
+        /* 将任务加入就绪队列 */
+        rtos_task_sched_ready(p_task) ;
+
+    }
+     
+    /* 退出临界区 */
+    rtos_task_critical_exit(status);  
+    
+    
+    return  count;
+}
+
+/**
+ * \brief 事件控制块中等待的任务数量
+ */
+uint32_t rtos_event_wait_count (rtos_task_event_t *p_event)
+{
+    uint32_t count = 0;
+    
+   /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+    
+    /* 获取等待中的任务数量 */
+    count = rtos_task_list_count(&p_event->event_wait_list);
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status);  
+        
+    return  count;   
+}
+    
+    
+
+        
+
+
+
     
     
  

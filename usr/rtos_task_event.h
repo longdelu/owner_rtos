@@ -96,6 +96,25 @@ rtos_task_t  *rtos_task_event_wake_up (rtos_task_event_t *p_event, void *p_event
  * \return  无                         
  */  
 void rtos_task_event_del (rtos_task_t  *p_task, void *p_event_msg, int32_t event_result);
+                           
+                           
+                           
+/**
+ * \brief 事件控制块中等待的任务数量
+ * \param[in] p_event: RTOS任务事件控制块的指针
+ * \return  返回事件控制块中等待的任务数量    
+ */
+uint32_t rtos_event_wait_count (rtos_task_event_t *p_event);
+
+
+/**
+ * \brief 清除所有等待中的任务，将事件发送给所有任务
+ * \param[in] p_event: RTOS任务事件控制块的指针
+ * \param[in] p_event_msg: 事件消息存储的具体位置
+ * \param[in] event_result: 事件等待的结果
+ * \return  唤醒的任务数量
+ */ 
+uint32_t  rtos_task_event_all_remove (rtos_task_event_t *p_event, void *p_event_msg, int32_t event_result);
 
     
 

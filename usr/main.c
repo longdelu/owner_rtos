@@ -84,7 +84,6 @@ taskstack_t idle_task_stack_buf[TASK_STACK_SIZE];
 rtos_task_list_t task_table[TASK_COUNT];
 
 /** \brief 事件控制块类型 */
-rtos_task_event_t  g_event_waittimeout;
 rtos_task_event_t  g_event_waitnormal;
 
 
@@ -110,15 +109,20 @@ void first_task_entry (void *p_arg)
     /* 系统节拍周期为10ms */
     rtos_systick_init(10); 
     
-    rtos_task_event_init(&g_event_waittimeout,RTOS_EVENT_TYPE_UNKNOW);
+    rtos_task_event_init(&g_event_waitnormal,RTOS_EVENT_TYPE_UNKNOW);
     
      for (; ;) {
          
-        /* 超时等待 */
-        rtos_task_event_wait(p_current_task, &g_event_waittimeout, NULL, RTOS_TASK_TEST_EVENT_WAIT, 5);
-        /*　接下来肯定时切换到其它任务去运行 */
-        rtos_task_sched(); 
-         
+        uint32_t count = rtos_event_wait_count(&g_event_waitnormal);
+
+        uint32_t wakeUpCount = rtos_task_event_all_remove(&g_event_waitnormal, (void *)0, 0);
+        if (wakeUpCount > 0)
+        {
+           /*　接下来肯定时切换到其它任务去运行 */
+            rtos_task_sched(); 
+
+            count = rtos_event_wait_count(&g_event_waitnormal);
+        }
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
@@ -151,7 +155,6 @@ void second_task_entry (void *p_arg)
  */
 void third_task_entry (void *p_arg)
 {  
-    rtos_task_event_init(&g_event_waitnormal,RTOS_EVENT_TYPE_UNKNOW);
     
     for (; ;) {
         
@@ -175,7 +178,8 @@ void forth_task_entry (void *p_arg)
     
     for (; ;) {
         
-        rtos_task_t *p_task =  rtos_task_event_wake_up(&g_event_waitnormal, NULL, RTOS_OK);
+        /* 不超时等待 */
+        rtos_task_event_wait(p_current_task, &g_event_waitnormal, NULL, RTOS_TASK_TEST_EVENT_WAIT, 0);
         /*　接下来肯定时切换到其它任务去运行 */
         rtos_task_sched(); 
         
@@ -213,7 +217,7 @@ int main (void)
     /* 任务初始化函数 */
     rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
     rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
-    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 0,  third_task_stack_buf, sizeof(third_task_stack_buf));
+    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
     rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf));
         
     /* 空闲任务初始化 */
