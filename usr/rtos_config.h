@@ -53,6 +53,7 @@ extern "C" {
 #define  RTOS_ERROR                      1   /** \brief 操作失败 */
 #define  RTOS_EINVAILD                   2   /** \brief 操作无效 */  
 #define  RTOS_TIMEOUT                    3   /** \brief 操作超时 */
+#define  RTOS_UNUSED                     4   /** \brief 操作系统资源不可用 */
 
 /** @} */
     
