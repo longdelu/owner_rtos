@@ -29,6 +29,7 @@
 #include "rtos_task_bitmap.h"
 #include "rtos_task_list.h"
 #include "rtos_task_event.h"
+#include "rtos_sem.h"
 
 #define   TASK_STACK_SIZE  1024
 
@@ -98,6 +99,9 @@ void idle_task_entry (void *p_arg)
     }
 }
 
+rtos_sem_t sem1;
+rtos_sem_t sem2;
+
 
 /**
  * \brief 当前任务入口函数
@@ -106,23 +110,18 @@ void idle_task_entry (void *p_arg)
 void first_task_entry (void *p_arg)
 {    
     
-    /* 系统节拍周期为10ms */
+    /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(10); 
-    
-    rtos_task_event_init(&g_event_waitnormal,RTOS_EVENT_TYPE_UNKNOW);
+   
+
+    /* 最大10个信号量计数，初始化值为0 */    
+    rtos_sem_init(&sem1, 0, 10);
     
      for (; ;) {
          
-        uint32_t count = rtos_event_wait_count(&g_event_waitnormal);
-
-        uint32_t wakeUpCount = rtos_task_event_all_remove(&g_event_waitnormal, (void *)0, 0);
-        if (wakeUpCount > 0)
-        {
-           /*　接下来肯定时切换到其它任务去运行 */
-            rtos_task_sched(); 
-
-            count = rtos_event_wait_count(&g_event_waitnormal);
-        }
+        /* 等待task2向信号量发通知 */
+        rtos_sem_wait(&sem1, 0);
+         
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
@@ -135,18 +134,21 @@ void first_task_entry (void *p_arg)
  * \brief 第二个任务入口函数
  */
 void second_task_entry (void *p_arg)
-{     
+{   
+    int error = 0;
+        
     for (; ;) {
-        
-        /* 不超时等待 */
-        rtos_task_event_wait(p_current_task, &g_event_waitnormal, NULL, RTOS_TASK_TEST_EVENT_WAIT, 0);
-        /*　接下来肯定时切换到其它任务去运行 */
-        rtos_task_sched(); 
-        
+                
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1);           
+        rtos_sched_mdelay(1);    
+
+        /* 向信号量发信号，通知task1可运行 */
+        rtos_sem_notify(&sem1);
+
+        /* 同时检查状态 */
+        error = rtos_sem_get(&sem2);        
     }
 }
 
@@ -155,13 +157,13 @@ void second_task_entry (void *p_arg)
  */
 void third_task_entry (void *p_arg)
 {  
+    /* 不限信号量计数，初始化值为0 */    
+    rtos_sem_init(&sem2, 0, 0);
     
     for (; ;) {
         
-        /* 不超时等待 */
-        rtos_task_event_wait(p_current_task, &g_event_waitnormal, NULL, RTOS_TASK_TEST_EVENT_WAIT, 0);
-        /*　接下来肯定时切换到其它任务去运行 */
-        rtos_task_sched(); 
+        /* 超时等待 */
+        rtos_sem_wait(&sem2, 10);
              
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
@@ -178,10 +180,6 @@ void forth_task_entry (void *p_arg)
     
     for (; ;) {
         
-        /* 不超时等待 */
-        rtos_task_event_wait(p_current_task, &g_event_waitnormal, NULL, RTOS_TASK_TEST_EVENT_WAIT, 0);
-        /*　接下来肯定时切换到其它任务去运行 */
-        rtos_task_sched(); 
         
         
         *((uint32_t*) p_arg) = 1;
@@ -217,7 +215,7 @@ int main (void)
     /* 任务初始化函数 */
     rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
     rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
-    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
+    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 0,  third_task_stack_buf, sizeof(third_task_stack_buf));
     rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf));
         
     /* 空闲任务初始化 */

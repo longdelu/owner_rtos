@@ -25,7 +25,7 @@
  #include "rtos_task.h"
  
  /**
- * \brief 初始化计数信号量
+ * \brief 初始化计数信号量，start_count表明该信号量一开始就有几个计数信号量可用
  */  
 void rtos_sem_init(rtos_sem_t *p_sem, uint32_t start_count, uint32_t max_count)
 {
@@ -71,7 +71,7 @@ int32_t rtos_sem_wait (rtos_sem_t *p_sem, uint32_t wait_ticks)
         /* 最后再执行一次事件调度，以便于切换到其它任务 */
         rtos_task_sched(); 
         
-        /* 当由于等待超时或者计数可用时，执行会返回到这里，然后取出等待结构 */
+        /* 当由于等待超时或者计数可用时，执行会返回到这里，然后取出等待结果 */
         
         return  p_current_task->event_wait_result;
     } 
@@ -123,24 +123,70 @@ void rtos_sem_notify (rtos_sem_t *p_sem)
              rtos_task_sched(); 
         }
     } else {
-        // 如果没有任务等待的话，增加计数
-        ++p_sem->sem_count;
+        /* 如果没有任务等待的话，增加计数 */
+        if ((uint64_t)p_sem->sem_count < 0xFFFFFFFF) {
+            
+            ++p_sem->sem_count;
+        } else {
+            p_sem->sem_count = 0xFFFFFFFF;
+        }
 
         // 如果这个计数超过了最大允许的计数，则递减
-        if ((p_sem->max_count != 0) && (p_sem->sem_count > p_sem->max_count)) 
-        {    
+        if ((p_sem->max_count != 0) && (p_sem->sem_count > p_sem->max_count)) {    
             p_sem->sem_count = p_sem->max_count;
         }
-        
-//        if ((p_sem->max_count == 0) && (p_sem->max_count == 0xFFFFFFFF) {
-//            
-//            p_sem->sem_count = p_sem->max_count
-
-//        }            
+                  
     }
         
     /* 退出临界区 */
     rtos_task_critical_exit(status);    
+}
+
+/**
+ * \brief查询信号量的状态信息
+ */  
+void rtos_sem_info_get (rtos_sem_t * p_sem, rtos_sem_info_t *p_info)
+{
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry(); 
+    
+    p_info->count      =  p_sem->sem_count;
+    p_info->max_count  =  p_sem->max_count;  
+
+    /* 待待该信号量的任务数量 */    
+    p_info->task_count =  rtos_event_wait_count(&p_sem->sem_event);
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+    
+}
+
+/**       
+ * \brief 销毁信号量
+ */  
+uint32_t rtos_sem_destroy (rtos_sem_t *p_sem)
+{
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry(); 
+
+    /* 清空事件控制块中的任务 */
+    uint32_t count  = rtos_task_event_all_remove(&p_sem->sem_event, NULL, -RTOS_DEL);  
+
+    p_sem->sem_count = 0;    
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status);  
+    
+    /* 清空过程中可能有任务就绪，执行一次调度 */    
+    if (count > 0) {
+        
+       rtos_task_sched();         
+        
+    }
+    
+    return count;
+    
+    
 }
  
  
