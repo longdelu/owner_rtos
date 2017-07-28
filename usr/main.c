@@ -136,6 +136,7 @@ void first_task_entry (void *p_arg)
 void second_task_entry (void *p_arg)
 {   
     int error = 0;
+    rtos_sem_info_t seminfo;
         
     for (; ;) {
                 
@@ -144,8 +145,11 @@ void second_task_entry (void *p_arg)
         *((uint32_t*) p_arg) = 0   ;
         rtos_sched_mdelay(1);    
 
-        /* 向信号量发信号，通知task1可运行 */
-        rtos_sem_notify(&sem1);
+        /* 删除信号量，将唤醒task1 */
+        if (error == 0) {
+            rtos_sem_info_get(&sem1, &seminfo);
+            rtos_sem_destroy(&sem1);            
+        }
 
         /* 同时检查状态 */
         error = rtos_sem_get(&sem2);        
