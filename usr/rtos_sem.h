@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief RTOS配置文件
+ * \brief RTOS 计数信号量头文件
  * \internal
  * \par Modification history
  * - 1.00 17-07-10  nwt, first implementation.
@@ -33,7 +33,7 @@ typedef struct rtos_sem {
 }rtos_sem_t;
 
 
-// 信号量的信息类型
+/** \brief 信号量的信息类型 */
 typedef struct rtos_sem_info {
     /** \brief  当前信号量的计数 */
     uint32_t count;
