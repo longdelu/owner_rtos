@@ -177,7 +177,7 @@ uint32_t rtos_sem_destroy (rtos_sem_t *p_sem)
     /* 退出临界区 */
     rtos_task_critical_exit(status);  
     
-    /* 清空过程中可能有任务就绪，执行一次调度 */    
+    /* 清空过程中可能有更高优先级任务就绪，执行一次调度 */    
     if (count > 0) {
         
        rtos_task_sched();         

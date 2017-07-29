@@ -30,6 +30,7 @@
 #include "rtos_task_list.h"
 #include "rtos_task_event.h"
 #include "rtos_sem.h"
+#include "rtos_mbox.h"
 
 #define   TASK_STACK_SIZE  1024
 
@@ -99,29 +100,51 @@ void idle_task_entry (void *p_arg)
     }
 }
 
-rtos_sem_t sem1;
-rtos_sem_t sem2;
+rtos_mbox_t mbox1;
+rtos_mbox_t mbox2;  
 
+/** \brief void *指针数组，&gp_msg_buf1[0], &gp_msg_buf1[1]相差一个字节 */
+void *gp_msg_buf1[20];
+void *gp_msg_buf2[20];
+
+uint32_t g_msg_buf[20]; 
 
 /**
  * \brief 当前任务入口函数
  * \note  系统节拍初始化函数要等任务初始化函数完成后才能调用
  */
 void first_task_entry (void *p_arg)
-{    
+{  
+    uint8_t i = 0;    
     
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(10); 
    
 
-    /* 最大10个信号量计数，初始化值为0 */    
-    rtos_sem_init(&sem1, 0, 10);
+    /* 初始化消息邮箱，最大20个消息一维数组的缓冲区 */    
+    rtos_mbox_init(&mbox1, gp_msg_buf1, 10);
     
      for (; ;) {
-         
-        /* 等待task2向信号量发通知 */
-        rtos_sem_wait(&sem1, 0);
-         
+
+        for (i = 0; i < 20; i++) {
+             g_msg_buf[i] = i;     /*　这个一维数组每个元素的地址&g_msg_buf[i]记录在gp_msg_buf1[i]这个指针数组里面 */
+             rtos_mbox_notify(&mbox1, &g_msg_buf[i], RTOS_MBOX_SENDNORMAL); 
+        }
+        
+        rtos_sched_mdelay(100);  
+
+
+        // 后发的消息具有更高优先级
+        // 也许你会期望task2~task3得到的消息值会从19/18/...1递减
+        // 但是如果队列中已经存在等待任务的话，每发一次消息，都会消耗掉该消息
+        // 导致最开始的顺序会有所变化
+        for (i = 0; i < 20; i++) 
+        {
+            g_msg_buf[i] = i;
+            rtos_mbox_notify(&mbox1, &g_msg_buf[i], RTOS_MBOX_SENDFRONT);
+        }
+        
+        rtos_sched_mdelay(100);         
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
@@ -136,23 +159,18 @@ void first_task_entry (void *p_arg)
 void second_task_entry (void *p_arg)
 {   
     int error = 0;
-    rtos_sem_info_t seminfo;
+    
+    void *p_msg_buf = NULL;
         
     for (; ;) {
-                
-        *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(1); 
-        *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1);    
-
-        /* 删除信号量，将唤醒task1 */
-        if (error == 0) {
-            rtos_sem_info_get(&sem1, &seminfo);
-            rtos_sem_destroy(&sem1);            
-        }
-
-        /* 同时检查状态 */
-        error = rtos_sem_get(&sem2);        
+        error= rtos_mbox_wait(&mbox1, &p_msg_buf, 10);
+        if (error == RTOS_OK) 
+        {
+            uint32_t value = *(uint32_t*)p_msg_buf;
+            *((uint32_t*) p_arg) = value;
+            rtos_sched_mdelay(1);
+        }                
+     
     }
 }
 
@@ -160,14 +178,18 @@ void second_task_entry (void *p_arg)
  * \brief 第三个任务入口函数
  */
 void third_task_entry (void *p_arg)
-{  
-    /* 不限信号量计数，初始化值为0 */    
-    rtos_sem_init(&sem2, 0, 0);
+{     
+    int temp = 0;
+    void *msg = (void *)&temp;
+    
+    /* 初始化消息邮箱，最大10个消息一维数组的缓冲区 */    
+    rtos_mbox_init(&mbox2, gp_msg_buf2, 10);
+
     
     for (; ;) {
         
         /* 超时等待 */
-        rtos_sem_wait(&sem2, 10);
+        rtos_mbox_wait(&mbox2, &msg, 100);
              
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
@@ -184,8 +206,7 @@ void forth_task_entry (void *p_arg)
     
     for (; ;) {
         
-        
-        
+                
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
@@ -219,7 +240,7 @@ int main (void)
     /* 任务初始化函数 */
     rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
     rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
-    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 0,  third_task_stack_buf, sizeof(third_task_stack_buf));
+    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
     rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf));
         
     /* 空闲任务初始化 */

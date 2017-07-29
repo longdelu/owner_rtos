@@ -54,8 +54,9 @@ extern "C" {
 #define  RTOS_EINVAILD                   2   /** \brief 操作无效 */  
 #define  RTOS_TIMEOUT                    3   /** \brief 操作超时 */
 #define  RTOS_UNUSED                     4   /** \brief 资源不可用 */
+#define  RTOS_DEL                        5   /** \brief 资源被删除 */
+#define  RTOS_FULL                       6   /** \brief 资源已满 */
 
-#define  RTOS_DEL                        5   /** \brief 被删除 */
 
 /** @} */
     

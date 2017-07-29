@@ -137,7 +137,7 @@ void rtos_task_sched_ready(rtos_task_t *task)
  */
 void rtos_task_sched_unready(rtos_task_t *task)
 {
-    /* 同一优先级的任务不可能同时处于任务延时队列及任务优先级队列当中 */
+    /* 同一优先级的任务不可能同时处于任务延时队列及任务优先级队列(就绪队列）当中 */
     rtos_task_list_remove(&task_table[task->prio], &(task->prio_node));
     
     if (rtos_task_list_count(&task_table[task->prio]) == 0) {

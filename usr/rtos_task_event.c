@@ -90,7 +90,7 @@ rtos_task_t  *rtos_task_event_wake_up (rtos_task_event_t *p_event, void *p_event
     uint32_t status = rtos_task_critical_entry();
 
 
-    /* 取出该事件控制块等待队列中的第一个结点 */
+    /* 取出该事件控制块等待队列中的第一个结点，即移除出事件等待队列，可以加入到事件等待队列 */
     if ((p_event_node = rtos_task_list_remove_first(&p_event->event_wait_list)) != NULL) {
         
          /* 转换成对应的任务结构 */
