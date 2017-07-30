@@ -62,4 +62,4 @@ uint32_t rtos_task_bitmap_first_set_get (rtos_task_bitmap_t *p_rtos_task_bitmap)
 }
 #endif
 
-#endif /* ___RTOS_TASK_BITMAPL_H */
+#endif /* ___RTOS_TASK_BITMAP_H */

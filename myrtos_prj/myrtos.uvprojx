@@ -419,6 +419,36 @@
               <FileType>5</FileType>
               <FilePath>..\usr\rtos_config.h</FilePath>
             </File>
+            <File>
+              <FileName>rtos_task_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_task_list.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_list.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_task_event.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_task_event.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_sem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_sem.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_mbox.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_mbox.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_memblock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_memblock.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

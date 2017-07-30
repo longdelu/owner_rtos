@@ -41,11 +41,16 @@ uint32_t rtos_get_systick(void)
 /**
  * \brief  操作系统普通延时，没有任务调度, 以10ms为一个时基单位
  */
-void rtos_mdelay (uint32_t ms) { 
+void rtos_mdelay (int32_t ms) { 
     
-    uint32_t ms_end = rtos_systick + ms;
+    int32_t ms_end = rtos_systick + ms;
     
-    while ((ms_end - rtos_systick) > 0) {
+    /* 
+     * 注意这里需要强制转换成int32_t类型，否则它运算结果是以无符位32位来处理的，如果在相减为0时
+     * 有一个中断来打断执行的时候会出现问题，即刚为0时，相减没有完成，被中断打断，此时rtos_systick被增加，则
+     * ms_end - rtos_systick不等0了，而是一个很大的无符号数
+     */
+    while (((int32_t)(ms_end - rtos_systick)) > 0) {
         ;
     }
 }
@@ -53,15 +58,16 @@ void rtos_mdelay (uint32_t ms) {
 /**
  * \brief  操作系延时，存在任务调度, 以10ms为一个时基单位
  */
-void rtos_sched_mdelay ( uint32_t ms)    
+void rtos_sched_mdelay (uint32_t ms)    
 {   
     uint32_t status = rtos_task_critical_entry(); 
     
-    /* 设置任务的延时滴答 */
-    p_current_task->delay_ticks = ms;
+    /* 插入任务延时队列，并设置任务的延时滴答 */
+    rtos_task_add_delayed_list(p_current_task, ms);
     
-    /* 取消该任务的优先级标记,让出其CPU的使用权 */
-    rtos_task_bitmap_clr(&task_priobitmap, p_current_task->prio);
+    /* 将任务从就绪表中移除,即不在同一优先级的队列时时里面了 */
+    rtos_task_sched_unready(p_current_task);
+    
     
     /* 退出临界区 */
     rtos_task_critical_exit(status); 
