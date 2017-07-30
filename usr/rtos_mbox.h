@@ -82,19 +82,19 @@ void rtos_mbox_init(rtos_mbox_t *p_mbox, void **p_msg_buf, uint32_t msg_max_coun
 /**
  * \brief 等待邮箱, 获取一则消息
  * \param[in] p_mbox: 指向消息邮箱结构体的指针
- * \param[in] p_msg_buf:  消息存储缓冲区
+ * \param[in] pp_msg_buf:  消息存储缓冲区
  * \param[in] wait_ticks: 最大等待的ticks数，为0表示无限等待
  * \return  等待结果,-RTOS_UNUSED.RTOS_OK,-RTOS_TIMEOUT
  */ 
-int32_t rtos_mbox_wait (rtos_mbox_t *p_mbox, void **p_msg_buf, uint32_t wait_ticks);
+int32_t rtos_mbox_wait (rtos_mbox_t *p_mbox, void **pp_msg_buf, uint32_t wait_ticks);
 
 /**
  * \brief  获取一则消息，如果没有消息，则立即退回
  * \param[in] p_mbox: 指向消息邮箱结构体的指针
- * \param[in] p_msg_buf:  消息存储缓冲区
+ * \param[in] pp_msg_buf:  消息存储缓冲区
  * \return  等待结果,-RTOS_UNUSED.RTOS_OK,
  */ 
-int32_t rtos_mbox_nowait_get (rtos_mbox_t *p_mbox, void **p_msg_buf);
+int32_t rtos_mbox_nowait_get (rtos_mbox_t *p_mbox, void **pp_msg_buf);
 
 
 /**

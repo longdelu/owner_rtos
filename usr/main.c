@@ -31,6 +31,7 @@
 #include "rtos_task_event.h"
 #include "rtos_sem.h"
 #include "rtos_mbox.h"
+#include "rtos_memblock.h"
 
 #define   TASK_STACK_SIZE  1024
 
@@ -85,8 +86,6 @@ taskstack_t idle_task_stack_buf[TASK_STACK_SIZE];
 /** \brief 同一个优先级任务的链表头结点 */
 rtos_task_list_t task_table[TASK_COUNT];
 
-/** \brief 事件控制块类型 */
-rtos_task_event_t  g_event_waitnormal;
 
 
 /**
@@ -100,14 +99,20 @@ void idle_task_entry (void *p_arg)
     }
 }
 
-rtos_mbox_t mbox1;
-rtos_mbox_t mbox2;  
+/**
+ * \brief 存储控制块分布在data数据段，定义了20个100个字节大小的存储控制块
+ */
+uint8_t mem1[20][100];
+rtos_memblock_t memblock1;
+typedef uint8_t (*block)[100];     
 
-/** \brief void *指针数组，&gp_msg_buf1[0], &gp_msg_buf1[1]相差一个字节 */
-void *gp_msg_buf1[20];
-void *gp_msg_buf2[20];
+uint8_t *p8[10];
+uint32_t *p32[10];
+void *p_void[10];
 
-uint32_t g_msg_buf[20]; 
+block memblock3[20];
+    
+
 
 /**
  * \brief 当前任务入口函数
@@ -115,42 +120,38 @@ uint32_t g_msg_buf[20];
  */
 void first_task_entry (void *p_arg)
 {  
-    uint8_t i = 0;    
+    block memblock[20];
+    uint8_t i = 0;
     
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(10); 
-   
-
-    /* 初始化消息邮箱，最大20个消息一维数组的缓冲区 */    
-    rtos_mbox_init(&mbox1, gp_msg_buf1, 10);
     
-     for (; ;) {
-
-        for (i = 0; i < 20; i++) {
-             g_msg_buf[i] = i;     /*　这个一维数组每个元素的地址&g_msg_buf[i]记录在gp_msg_buf1[i]这个指针数组里面 */
-             rtos_mbox_notify(&mbox1, &g_msg_buf[i], RTOS_MBOX_SENDNORMAL); 
-        }
+    rtos_memblock_init(&memblock1, (uint8_t *)mem1,  sizeof(mem1[0]), sizeof(mem1) / sizeof(mem1[0]));
+    
+    for (i = 0; i < sizeof(mem1) / sizeof(mem1[0]); i++) {
         
-        rtos_sched_mdelay(100);  
-
-
-        // 后发的消息具有更高优先级
-        // 也许你会期望task2~task3得到的消息值会从19/18/...1递减
-        // 但是如果队列中已经存在等待任务的话，每发一次消息，都会消耗掉该消息
-        // 导致最开始的顺序会有所变化
-        for (i = 0; i < 20; i++) 
-        {
-            g_msg_buf[i] = i;
-            rtos_mbox_notify(&mbox1, &g_msg_buf[i], RTOS_MBOX_SENDFRONT);
-        }
+         rtos_memblock_wait(&memblock1, (uint8_t **)&memblock[i], 0);
         
-        rtos_sched_mdelay(100);         
+    }
+
+    rtos_sched_mdelay(2); 
+
+    for (i = 0; i < sizeof(mem1) / sizeof(mem1[0]); i++) {
+        
+         memset(memblock[i], i, 100);
+        
+         rtos_memblock_notify(&memblock1, (uint8_t *)memblock[i]);
+         rtos_sched_mdelay(2);         
+    }
+    
+   
+    for (; ;) {      
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0;
         rtos_sched_mdelay(1);              
-     }
+    }
 }
 
 /**
@@ -160,13 +161,14 @@ void second_task_entry (void *p_arg)
 {   
     int error = 0;
     
-    void *p_msg_buf = NULL;
+    block memblock;
         
     for (; ;) {
-        error= rtos_mbox_wait(&mbox1, &p_msg_buf, 10);
+        
+        error = rtos_memblock_wait(&memblock1, (uint8_t **)&memblock, 0);
         if (error == RTOS_OK) 
         {
-            uint32_t value = *(uint32_t*)p_msg_buf;
+            uint32_t value = *(uint8_t *)memblock;
             *((uint32_t*) p_arg) = value;
             rtos_sched_mdelay(1);
         }                
@@ -179,17 +181,9 @@ void second_task_entry (void *p_arg)
  */
 void third_task_entry (void *p_arg)
 {     
-    int temp = 0;
-    void *msg = (void *)&temp;
-    
-    /* 初始化消息邮箱，最大10个消息一维数组的缓冲区 */    
-    rtos_mbox_init(&mbox2, gp_msg_buf2, 10);
-
-    
+       
     for (; ;) {
         
-        /* 超时等待 */
-        rtos_mbox_wait(&mbox2, &msg, 100);
              
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 

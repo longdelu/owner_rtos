@@ -47,7 +47,7 @@ typedef struct rtos_task {
     uint32_t *task_stack_top;
     
     /** \brief 堆栈的起始地址 */
-    uint32_t * stack_base;
+    uint32_t *stack_base;
 
     /** \brief 堆栈的总容量   */
     uint32_t stack_size;
@@ -80,18 +80,18 @@ typedef struct rtos_task {
     void (*pfn_clean) (void * p_par);
 
     /** \brief 传递给清理函数的参数 */
-    void * clean_param;
+    void *clean_param;
 
     /** \brief 请求删除标志，非0表示请求删除*/
     uint8_t req_delete_flag; 
 
-    /** \brief 任务正在等待的事件类型 */
+    /** \brief 任务正在等待的事件类型,加入事件等待链表或移除会被设置与清除 */
     struct rtos_task_event *p_event;
     
-    /** \brief 等待事件的消息存储位置 */
+    /** \brief 等待事件的消息存储位置，加入事件等待链表或移除会被设置与清除 */
     void *p_event_msg;
     
-    /** \brief 等待事件的结果 */
+    /** \brief 等待事件的结果，加入事件等待链表或移除会被设置与清除 */
     int32_t event_wait_result;
 
             

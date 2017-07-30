@@ -41,7 +41,7 @@ void rtos_mbox_init(rtos_mbox_t *p_mbox, void **p_msg_buf, uint32_t msg_max_coun
 /**
  * \brief 等待邮箱, 获取一则消息
  */ 
-int32_t rtos_mbox_wait (rtos_mbox_t *p_mbox, void **p_msg_buf, uint32_t wait_ticks)
+int32_t rtos_mbox_wait (rtos_mbox_t *p_mbox, void **pp_msg_buf, uint32_t wait_ticks)
 {
     /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
     uint32_t status = rtos_task_critical_entry(); 
@@ -51,7 +51,7 @@ int32_t rtos_mbox_wait (rtos_mbox_t *p_mbox, void **p_msg_buf, uint32_t wait_tic
         
         /* 大于0的话，取出一个消息 */
         --p_mbox->msg_cur_count;
-        *p_msg_buf = p_mbox->p_msg_buf[p_mbox->read_index++];
+        *pp_msg_buf = p_mbox->p_msg_buf[p_mbox->read_index++];
         
         /* 同时读取索引前移，如果超出边界则回绕 */
         if (p_mbox->read_index >= p_mbox->msg_max_count) {
@@ -75,7 +75,7 @@ int32_t rtos_mbox_wait (rtos_mbox_t *p_mbox, void **p_msg_buf, uint32_t wait_tic
         rtos_task_sched();   
 
        /* 当切换回来时，从tTask中取出获得的消息 */
-       *p_msg_buf = p_current_task->p_event_msg;
+       *pp_msg_buf = p_current_task->p_event_msg;
        
        /* 取出等待结果 */        
        return  p_current_task->event_wait_result;
@@ -87,7 +87,7 @@ int32_t rtos_mbox_wait (rtos_mbox_t *p_mbox, void **p_msg_buf, uint32_t wait_tic
 /**
  * \brief  获取一则消息，如果没有消息，则立即退回
  */ 
-int32_t rtos_mbox_nowait_get (rtos_mbox_t *p_mbox, void **p_msg_buf)
+int32_t rtos_mbox_nowait_get (rtos_mbox_t *p_mbox, void **pp_msg_buf)
 {
     /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
     uint32_t status = rtos_task_critical_entry(); 
@@ -97,7 +97,7 @@ int32_t rtos_mbox_nowait_get (rtos_mbox_t *p_mbox, void **p_msg_buf)
         
         /* 大于0的话，取出一个消息 */
         --p_mbox->msg_cur_count;
-        *p_msg_buf = p_mbox->p_msg_buf[p_mbox->read_index++];
+        *pp_msg_buf = p_mbox->p_msg_buf[p_mbox->read_index++];
         
         /* 同时读取索引前移，如果超出边界则回绕 */
         if (p_mbox->read_index >= p_mbox->msg_max_count) {
@@ -212,7 +212,9 @@ uint32_t rtos_mbox_destroy (rtos_mbox_t *p_mbox)
 
     /* 清空事件控制块中的任务 */
     uint32_t count  = rtos_task_event_all_remove(&p_mbox->mbox_event, NULL, -RTOS_DEL);  
-
+    
+    p_mbox->read_index  = 0;
+    p_mbox->write_index = 0;
     p_mbox->msg_cur_count = 0;    
     
     /* 退出临界区 */

@@ -152,7 +152,7 @@ void rtos_task_list_add (rtos_task_list_t *p_rtos_task_list, dlist_node_t *p_pos
 /**
  * \brief 在任务链表中删除第1个用户结点
  */
-dlist_node_t * rtos_task_list_remove_first (rtos_task_list_t * p_rtos_task_list)
+dlist_node_t *rtos_task_list_remove_first (rtos_task_list_t * p_rtos_task_list)
 {
     
     int ret = 0;

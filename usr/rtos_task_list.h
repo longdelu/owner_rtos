@@ -128,14 +128,14 @@ void rtos_task_list_add (rtos_task_list_t *p_rtos_task_list, dlist_node_t *p_pos
  * \param[in] p_rtos_task_list: 指向链表结构体的指针
  * \reutn 返回被删除的结点 
  */
-dlist_node_t * rtos_task_list_remove_first (rtos_task_list_t * p_rtos_task_list);
+dlist_node_t *rtos_task_list_remove_first (rtos_task_list_t * p_rtos_task_list);
 
 /**
  * \brief 在任务链表中删除最后1个用户结点
  * \param[in] p_rtos_task_list: 指向链表结构体的指针
  * \reutn 返回被删除的结点 
  */
-dlist_node_t * rtos_task_list_remove_last (rtos_task_list_t * p_rtos_task_list);
+dlist_node_t *rtos_task_list_remove_last (rtos_task_list_t * p_rtos_task_list);
 
 /**
  * \brief 在任务链表删除指定结点

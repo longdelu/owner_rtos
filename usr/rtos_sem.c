@@ -184,9 +184,7 @@ uint32_t rtos_sem_destroy (rtos_sem_t *p_sem)
         
     }
     
-    return count;
-    
-    
+    return count;   
 }
  
  
