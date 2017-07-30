@@ -97,6 +97,8 @@ int32_t rtos_mbox_nowait_get (rtos_mbox_t *p_mbox, void **pp_msg_buf)
         
         /* 大于0的话，取出一个消息 */
         --p_mbox->msg_cur_count;
+        
+        /* 这个修改可以直接改变上层传进来变量的值 */
         *pp_msg_buf = p_mbox->p_msg_buf[p_mbox->read_index++];
         
         /* 同时读取索引前移，如果超出边界则回绕 */

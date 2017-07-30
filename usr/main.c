@@ -161,7 +161,7 @@ void second_task_entry (void *p_arg)
 {   
     int error = 0;
     
-    block memblock;
+    block memblock;   /*　(uint8_t **)&memblock　取得其地址，通过指针修改该变量的内容　*/
         
     for (; ;) {
         
