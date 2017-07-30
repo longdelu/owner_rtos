@@ -616,7 +616,7 @@ int dlist_destroy (dlist_head_t *p_head)
     
     /*  重置头结点自己的信息,指向头结点自身 */
     p_next->p_next =  p_next;
-    p_next->p_next =  p_next;
+    p_next->p_prev =  p_next;
     
     return RTOS_OK;
        

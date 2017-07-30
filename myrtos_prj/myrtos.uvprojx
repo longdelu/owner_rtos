@@ -444,6 +444,11 @@
               <FileType>1</FileType>
               <FilePath>..\usr\rtos_mbox.c</FilePath>
             </File>
+            <File>
+              <FileName>rtos_memblock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_memblock.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
