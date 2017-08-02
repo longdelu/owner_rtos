@@ -47,7 +47,10 @@ typedef enum rtos_task_event_type {
     RTOS_EVENT_TYPE_MBOX     = (1UL << 18), 
     
     /** \brief 存储块控制块 */
-    RTOS_EVENT_TYPE_MEMBLOCK = (1UL << 19),        
+    RTOS_EVENT_TYPE_MEMBLOCK = (1UL << 19),       
+
+    /** \brief 事件标记组 */
+    RTOS_EVENT_TYPE_FLAG_GRP = (1UL << 20),         
   
 }rtos_task_event_type_t;
     
