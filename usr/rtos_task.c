@@ -110,6 +110,10 @@ void rtos_task_init(rtos_task_t *task,
     task->p_event = NULL;                                          // 没有等待事件       
     task->p_event_msg = NULL;                                      // 没有存储等待事件的消息
     task->event_wait_result  =  RTOS_EVENT_TYPE_UNKNOW;            // 没有等待事件错误
+
+    /* 初始化事件标记组 */
+    task->wait_flags_grp_type = 0;                                   
+    task->event_flags_grp = 0;
     
     
     /*

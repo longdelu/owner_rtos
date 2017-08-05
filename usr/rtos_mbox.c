@@ -135,7 +135,7 @@ int32_t  rtos_mbox_notify (rtos_mbox_t *p_mbox, void *p_msg, uint32_t notify_opt
     /* 检查是否有任务等待 */
     if (rtos_event_wait_count(&p_mbox->mbox_event) > 0){
         /* 如果有的话，则直接唤醒位于队列首部（最先等待）的任务　*/
-        rtos_task_t * task = rtos_task_event_wake_up(&p_mbox->mbox_event, (void *)p_msg, RTOS_OK );
+        rtos_task_t * task = rtos_task_first_event_wake_up(&p_mbox->mbox_event, (void *)p_msg, RTOS_OK );
 
         /* 如果这个任务的优先级更高，就执行调度，切换过去 */
         if (task->prio < p_current_task->prio) {

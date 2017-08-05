@@ -140,7 +140,7 @@ void rtos_memblock_notify (rtos_memblock_t *p_memblock, uint8_t *p_mem_addr)
     /* 检查是否有任务等待 */
     if (rtos_event_wait_count(&p_memblock->memblock_event) > 0){
         /* 如果有的话，则直接唤醒位于队列首部（最先等待）的任务　*/
-        rtos_task_t * task = rtos_task_event_wake_up(&p_memblock->memblock_event, (void *)p_mem_addr, RTOS_OK );
+        rtos_task_t * task = rtos_task_first_event_wake_up(&p_memblock->memblock_event, (void *)p_mem_addr, RTOS_OK );
 
         /* 如果这个任务的优先级更高，就执行调度，切换过去 */
         if (task->prio < p_current_task->prio) {

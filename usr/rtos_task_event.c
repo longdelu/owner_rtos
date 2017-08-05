@@ -80,7 +80,7 @@ void rtos_task_event_wait (rtos_task_t *p_task,
 /**
  * \brief 从指定事件控制块上唤醒首个等待的RTOS任务，
  */  
-rtos_task_t  *rtos_task_event_wake_up (rtos_task_event_t *p_event, void *p_event_msg, int32_t event_result) 
+rtos_task_t  *rtos_task_first_event_wake_up (rtos_task_event_t *p_event, void *p_event_msg, int32_t event_result) 
 {   
     dlist_node_t *p_event_node = NULL;
     
@@ -118,10 +118,41 @@ rtos_task_t  *rtos_task_event_wake_up (rtos_task_event_t *p_event, void *p_event
     /* 退出临界区 */
     rtos_task_critical_exit(status);    
 
-   return p_task;    
-    
+   return p_task;       
 
 }
+
+/**
+ * \brief 从事件控制块中唤醒指定任务
+ */  
+void rtos_task_event_wake_up(rtos_task_event_t *p_event, rtos_task_t *p_task, void * p_event_msg, int32_t event_result)
+{
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+
+    rtos_task_list_remove(&p_event->event_wait_list, &p_task->event_node);
+    
+    p_task->task_state       &= ~RTOS_TASK_EVENT_WAIT_MASK;         /* 标记任务未处于等待某种事件的状态 */ 
+    p_task->p_event           = NULL;                               /* 设置任务等待的事件结构         */
+    p_task->p_event_msg       = p_event_msg;                        /* 设置任务等待事件的消息存储位置 */   
+    p_task->event_wait_result = event_result;                       /* 设置事件的等待结果             */  
+
+
+    /* 任务申请了超时等待，这里检查下，将其从延时队列中移除 */
+    if (p_task->delay_ticks != 0) {
+        
+        rtos_task_wake_up_delayed_list(p_task);
+        
+        /* todo: 可以加入唤醒超时等待的事件上任务，并使其delay_ticks为0 */
+    }
+    
+    /* 将任务加入就绪队列 */
+    rtos_task_sched_ready(p_task) ;
+
+    /* 退出临界区 */
+    rtos_task_critical_exit(status);    
+}
+
 
 /**
  * \brief 从指定事件控制块上删除等待的RTOS任务
@@ -154,8 +185,6 @@ void rtos_task_event_del (rtos_task_t  *p_task, void *p_event_msg, int32_t event
 
     /* 退出临界区 */
     rtos_task_critical_exit(status);    
-    
-
 }
 
 /**
@@ -206,6 +235,9 @@ uint32_t  rtos_task_event_all_remove (rtos_task_event_t *p_event, void *p_event_
     
     return  count;
 }
+
+
+
 
 /**
  * \brief 事件控制块中等待的任务数量

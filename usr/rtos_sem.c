@@ -71,8 +71,7 @@ int32_t rtos_sem_wait (rtos_sem_t *p_sem, uint32_t wait_ticks)
         /* 最后再执行一次事件调度，以便于切换到其它任务 */
         rtos_task_sched(); 
         
-        /* 当由于等待超时或者计数可用时，执行会返回到这里，然后取出等待结果 */
-        
+        /* 当由于等待超时或者计数信号量执行rtos_sem_notify可用时，执行会返回到这里，然后取出等待结果 */      
         return  p_current_task->event_wait_result;
     } 
 }
@@ -116,7 +115,7 @@ void rtos_sem_notify (rtos_sem_t *p_sem)
     /* 检查是否有任务等待 */
     if (rtos_event_wait_count(&p_sem->sem_event) > 0){
         /* 如果有的话，则直接唤醒位于队列首部（最先等待）的任务　*/
-        rtos_task_t * task = rtos_task_event_wake_up(&p_sem->sem_event, (void *)0, RTOS_OK );
+        rtos_task_t * task = rtos_task_first_event_wake_up(&p_sem->sem_event, (void *)0, RTOS_OK );
 
         /* 如果这个任务的优先级更高，就执行调度，切换过去 */
         if (task->prio < p_current_task->prio) {

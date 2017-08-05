@@ -93,6 +93,12 @@ typedef struct rtos_task {
     
     /** \brief 等待事件的结果，加入事件等待链表或移除会被设置与清除 */
     int32_t event_wait_result;
+    
+    /** \brief 等待的事件标记组方式 */
+    uint32_t wait_flags_grp_type;
+
+    /** \brief 等待的事件标记组的标志 */
+    uint32_t event_flags_grp;    
 
             
 }rtos_task_t;
