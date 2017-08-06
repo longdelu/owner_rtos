@@ -38,19 +38,22 @@ extern "C" {
 typedef enum rtos_task_event_type {
     
     /** \brief 未知类型的事件控制块 */
-    RTOS_EVENT_TYPE_UNKNOW   = (1UL << 16) ,
+    RTOS_EVENT_TYPE_UNKNOW    = (1UL << 16) ,
     
     /** \brief 计数信号量事件控制块 */
-    RTOS_EVENT_TYPE_SEM      = (1UL << 17),
+    RTOS_EVENT_TYPE_SEM       = (1UL << 17),
 
     /** \brief 消息邮箱事件控制块 */
-    RTOS_EVENT_TYPE_MBOX     = (1UL << 18), 
+    RTOS_EVENT_TYPE_MBOX      = (1UL << 18), 
     
     /** \brief 存储块控制块 */
-    RTOS_EVENT_TYPE_MEMBLOCK = (1UL << 19),       
+    RTOS_EVENT_TYPE_MEMBLOCK  = (1UL << 19),       
 
     /** \brief 事件标记组 */
-    RTOS_EVENT_TYPE_FLAG_GRP = (1UL << 20),         
+    RTOS_EVENT_TYPE_FLAG_GRP  = (1UL << 20),  
+
+    /** \brief 互斥信号量 */
+    RTOS_EVENT_TYPE_MUTEX_SEM = (1UL << 21),        
   
 }rtos_task_event_type_t;
     

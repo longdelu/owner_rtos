@@ -139,7 +139,7 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>155</LineNumber>
+          <LineNumber>157</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>3504</Address>
           <ByteObject>0</ByteObject>
@@ -150,12 +150,12 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\usr\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\myrtos\../usr/main.c\155</Expression>
+          <Expression>\\myrtos\../usr/main.c\157</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>149</LineNumber>
+          <LineNumber>151</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>3488</Address>
           <ByteObject>0</ByteObject>
@@ -166,12 +166,12 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\usr\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\myrtos\../usr/main.c\149</Expression>
+          <Expression>\\myrtos\../usr/main.c\151</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>147</LineNumber>
+          <LineNumber>148</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>3472</Address>
           <ByteObject>0</ByteObject>
@@ -182,7 +182,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\usr\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\myrtos\../usr/main.c\147</Expression>
+          <Expression>\\myrtos\../usr/main.c\148</Expression>
         </Bp>
         <Bp>
           <Number>3</Number>
@@ -219,39 +219,7 @@
         <Bp>
           <Number>5</Number>
           <Type>0</Type>
-          <LineNumber>148</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\usr\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>6</Number>
-          <Type>0</Type>
-          <LineNumber>151</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\usr\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>7</Number>
-          <Type>0</Type>
-          <LineNumber>157</LineNumber>
+          <LineNumber>163</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -662,6 +630,18 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\usr\rtos_flaggroup.c</PathWithFileName>
       <FilenameWithoutPath>rtos_flaggroup.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>16</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\usr\rtos_mutex_sem.c</PathWithFileName>
+      <FilenameWithoutPath>rtos_mutex_sem.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

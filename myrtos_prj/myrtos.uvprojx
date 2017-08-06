@@ -454,6 +454,11 @@
               <FileType>1</FileType>
               <FilePath>..\usr\rtos_flaggroup.c</FilePath>
             </File>
+            <File>
+              <FileName>rtos_mutex_sem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\rtos_mutex_sem.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

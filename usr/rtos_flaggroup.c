@@ -14,7 +14,7 @@
 
 /**
  * \file
- * \brief RTOS 消息邮箱实现
+ * \brief RTOS 事件标记组实现
  * \internal
  * \par Modification history
  * - 1.00 17-07-10  nwt, first implementation.
