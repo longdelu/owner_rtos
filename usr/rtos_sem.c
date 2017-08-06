@@ -15,6 +15,7 @@
 /**
  * \file
  * \brief RTOS 计数信号量相关实现
+ * \note 计数信号量不支持嵌套调用
  * \internal
  * \par Modification history
  * - 1.00 17-07-10  nwt, first implementation.

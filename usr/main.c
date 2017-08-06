@@ -33,6 +33,7 @@
 #include "rtos_mbox.h"
 #include "rtos_memblock.h"
 #include "rtos_flaggroup.h"
+#include "rtos_mutex_sem.h"
 
 #define   TASK_STACK_SIZE  1024
 
@@ -101,9 +102,9 @@ void idle_task_entry (void *p_arg)
 }
 
 /**
- * \brief 事件标记组初
+ * \brief 互斥信号量
  */
-rtos_flag_grp_t flag_grp;
+rtos_mutex_sem_t mutex_sem;
 
     
 
@@ -118,17 +119,23 @@ void first_task_entry (void *p_arg)
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(10); 
     
-    rtos_flag_grp_init(&flag_grp, 0xff);
+    rtos_mutex_sem_init(&mutex_sem);
+    
       
    
-    for (; ;) {      
+    for (; ;) {   
+
+        rtos_mutex_sem_wait(&mutex_sem, 0);
+        rtos_mutex_sem_wait(&mutex_sem, 0);          
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0;
         rtos_sched_mdelay(1);   
-
-         rtos_flag_grp_notify(&flag_grp, RTOS_FALG_GRP_CLR, 0x06);        
+        
+        rtos_mutex_sem_notify(&mutex_sem);
+        rtos_mutex_sem_notify(&mutex_sem);
+     
     }
 }
 
@@ -139,30 +146,25 @@ void second_task_entry (void *p_arg)
 {   
     int error = 0;
     
-    uint32_t result_flag = 0;
-    
         
     for (; ;) {
-       
-       /* 
-        * 0x04 与 RTOS_FLAG_GRP_ALL_CLR， 表示事件标记组flag_grp.flag中第2位心须清0才满足,要满足这个条件，
-        * 以前事件标记组中flag_grp.flag中这个位必须先为1才可以
-        */        
-       error =  rtos_flag_grp_wait(&flag_grp, RTOS_FLAG_GRP_ALL_CLR| RTOS_FLAG_GRP_CONSUME, 0x04, &result_flag,10);
-       
-       /* 
-        * 0x03 与 RTOS_FLAG_GRP_ALL_CLR， 表示事件标记组flag_grp.flag中
-        * 第0位与第1位心须都清0才满足,要满足这个条件，以前事件标记组中flag_grp.flag中这两个位必须先为1才可以
-        */          
-       error = rtos_flag_grp_get(&flag_grp, RTOS_FLAG_GRP_ALL_CLR, 0x3, &result_flag);
         
-        
-        
+        rtos_mutex_sem_wait(&mutex_sem, 0);
+        rtos_mutex_sem_wait(&mutex_sem, 0); 
 
+
+        /*
+         * 当运行至此处时，由于互斥信号量的优先级继承机制
+         * task2的优先级由1变成0
+         */        
+       
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1);   
+        rtos_sched_mdelay(1);  
+
+        rtos_mutex_sem_notify(&mutex_sem);
+        rtos_mutex_sem_notify(&mutex_sem);        
  
     }
 }

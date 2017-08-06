@@ -56,6 +56,7 @@ extern "C" {
 #define  RTOS_UNUSED                     4   /** \brief 资源不可用 */
 #define  RTOS_DEL                        5   /** \brief 资源被删除 */
 #define  RTOS_FULL                       6   /** \brief 资源已满 */
+#define  RTOS_ERROR_OWER                 7   /** \brief不匹配的所有者 */
 
 
 /** @} */
