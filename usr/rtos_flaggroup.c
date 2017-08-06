@@ -65,7 +65,7 @@ static int32_t __rtos_rtos_flag_grp_check_and_consum( rtos_flag_grp_t *p_flag_gr
         return RTOS_OK;
     }
 
-    *p_req_flag = src_flags;
+    *p_req_flag = calc_flag;
     
     return -RTOS_UNUSED;    
     

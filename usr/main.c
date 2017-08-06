@@ -32,6 +32,7 @@
 #include "rtos_sem.h"
 #include "rtos_mbox.h"
 #include "rtos_memblock.h"
+#include "rtos_flaggroup.h"
 
 #define   TASK_STACK_SIZE  1024
 
@@ -100,17 +101,10 @@ void idle_task_entry (void *p_arg)
 }
 
 /**
- * \brief 存储控制块分布在data数据段，定义了20个100个字节大小的存储控制块
+ * \brief 事件标记组初
  */
-uint8_t mem1[20][100];
-rtos_memblock_t memblock1;
-typedef uint8_t (*block)[100];     
+rtos_flag_grp_t flag_grp;
 
-uint8_t *p8[10];
-uint32_t *p32[10];
-void *p_void[10];
-
-block memblock3[20];
     
 
 
@@ -120,37 +114,21 @@ block memblock3[20];
  */
 void first_task_entry (void *p_arg)
 {  
-    block memblock[20];
-    uint8_t i = 0;
     
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(10); 
     
-    rtos_memblock_init(&memblock1, (uint8_t *)mem1,  sizeof(mem1[0]), sizeof(mem1) / sizeof(mem1[0]));
-    
-    for (i = 0; i < sizeof(mem1) / sizeof(mem1[0]); i++) {
-        
-         rtos_memblock_wait(&memblock1, (uint8_t **)&memblock[i], 0);
-        
-    }
-
-    rtos_sched_mdelay(2); 
-
-    for (i = 0; i < sizeof(mem1) / sizeof(mem1[0]); i++) {
-        
-         memset(memblock[i], i, 100);
-        
-         rtos_memblock_notify(&memblock1, (uint8_t *)memblock[i]);
-         rtos_sched_mdelay(2);         
-    }
-    
+    rtos_flag_grp_init(&flag_grp, 0xff);
+      
    
     for (; ;) {      
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0;
-        rtos_sched_mdelay(1);              
+        rtos_sched_mdelay(1);   
+
+         rtos_flag_grp_notify(&flag_grp, RTOS_FALG_GRP_CLR, 0x06);        
     }
 }
 
@@ -161,18 +139,31 @@ void second_task_entry (void *p_arg)
 {   
     int error = 0;
     
-    block memblock;   /*　(uint8_t **)&memblock　取得其地址，通过指针修改该变量的内容　*/
+    uint32_t result_flag = 0;
+    
         
     for (; ;) {
+       
+       /* 
+        * 0x04 与 RTOS_FLAG_GRP_ALL_CLR， 表示事件标记组flag_grp.flag中第2位心须清0才满足,要满足这个条件，
+        * 以前事件标记组中flag_grp.flag中这个位必须先为1才可以
+        */        
+       error =  rtos_flag_grp_wait(&flag_grp, RTOS_FLAG_GRP_ALL_CLR| RTOS_FLAG_GRP_CONSUME, 0x04, &result_flag,10);
+       
+       /* 
+        * 0x03 与 RTOS_FLAG_GRP_ALL_CLR， 表示事件标记组flag_grp.flag中
+        * 第0位与第1位心须都清0才满足,要满足这个条件，以前事件标记组中flag_grp.flag中这两个位必须先为1才可以
+        */          
+       error = rtos_flag_grp_get(&flag_grp, RTOS_FLAG_GRP_ALL_CLR, 0x3, &result_flag);
         
-        error = rtos_memblock_wait(&memblock1, (uint8_t **)&memblock, 0);
-        if (error == RTOS_OK) 
-        {
-            uint32_t value = *(uint8_t *)memblock;
-            *((uint32_t*) p_arg) = value;
-            rtos_sched_mdelay(1);
-        }                
-     
+        
+        
+
+        *((uint32_t*) p_arg) = 1;
+        rtos_sched_mdelay(1); 
+        *((uint32_t*) p_arg) = 0   ;
+        rtos_sched_mdelay(1);   
+ 
     }
 }
 
