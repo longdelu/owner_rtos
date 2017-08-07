@@ -43,6 +43,16 @@ extern "C" {
 #define   RTOS_SLICE_MAX                 10
     
     
+#define   RTOS_IDLE_TASK_STACK_SIZE  1024    
+    
+    
+/** \brief 任务的优先级序号         */    
+#define   RTOS_TIMER_TASK_PRIO      RTOS_PRIO_COUNT - 2        
+
+    
+#define   TIMER_TASK_STACK_SIZE     1024    
+    
+    
 /** @} */
     
 /**

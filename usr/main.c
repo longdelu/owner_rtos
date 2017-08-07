@@ -35,7 +35,7 @@
 #include "rtos_flaggroup.h"
 #include "rtos_mutex_sem.h"
 
-#define   TASK_STACK_SIZE  1024
+#define   TASK_STACK_SIZE  1024  
 
 /** \brief 任务1标记 */
 int g_task_flag1 = 0;
@@ -83,7 +83,7 @@ rtos_task_t * p_next_task;
 rtos_task_t idle_task;
 
 /** \brief 空闲任务堆栈 */
-taskstack_t idle_task_stack_buf[TASK_STACK_SIZE];
+taskstack_t idle_task_stack_buf[RTOS_IDLE_TASK_STACK_SIZE];
 
 /** \brief 同一个优先级任务的链表头结点 */
 rtos_task_list_t task_table[TASK_COUNT];

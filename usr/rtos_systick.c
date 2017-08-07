@@ -26,6 +26,7 @@
 #include "rtos_task_bitmap.h"
 #include "rtos_config.h"
 #include "rtos_task_event.h"
+#include "rtos_soft_timer.h"
 
 
 /** \brief  任务延时队列 */
@@ -191,6 +192,9 @@ void SysTick_Handler (void)
     
     /* 退出临界区保护 */
     rtos_task_critical_exit(status);
+    
+    /* 通知定时器模块节拍事件 */
+    rtos_timer_moudule_tick_notify();
             
     /* 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度 */
     rtos_task_sched(); 

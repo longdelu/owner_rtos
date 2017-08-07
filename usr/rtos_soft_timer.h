@@ -44,13 +44,13 @@ typedef  enum rtos_timer_sate {
 /** \brief  软定时器结构体声明 */
 typedef struct rtos_timer
 {
-    // 链表结点
+    /** \brief  链表结点 */
     dlist_node_t timer_node;
 
-    // 初次启动延后的ticks数
+    /** \brief  初次启动延后的ticks数 */
     uint32_t start_delay_ticks;
 
-    // 周期定时时的周期tick数
+    /** \brief  周期定时时的周期tick数 */
     uint32_t duration_ticks;
 
     // 当前定时递减计数值,可以指示 start_delay_ticks 或  duration_ticks 计数完成
@@ -91,6 +91,38 @@ void rtos_timer_init (rtos_timer_t * p_timer,
                       void (*pfn_timer_func)(void *p_arg), 
                       void *p_arg, 
                       uint32_t config);
+                      
+/**
+ * \brief 启动定时器
+ * \param[in] p_timer: 指向定时器结构体的指针
+ * \return 无
+ */
+void rtos_timer_start (rtos_timer_t * p_timer);  
+
+
+/**
+ * \brief 停止定时器
+ * \param[in] p_timer: 指向定时器结构体的指针
+ * \return 无
+ */
+void rtos_timer_stop (rtos_timer_t * p_timer);                      
+
+
+
+/**
+ * \brief 通知系统滴答时钟已经发生了，因为它是在硬件中断处理函数中调用的，也可以在里面调用硬件定时器的处理
+ * \param[in] 无
+ * \return 无
+ */
+void rtos_timer_moudule_tick_notify (void); 
+
+
+/**
+ * \brief 定时器模块初始化函数
+ * \param[in] 无
+ * \return 无
+ */
+void  rtos_timer_moudule_init (void);                       
     
     
 #ifdef __cplusplus
