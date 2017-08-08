@@ -53,21 +53,45 @@ typedef struct rtos_timer
     /** \brief  周期定时时的周期tick数 */
     uint32_t duration_ticks;
 
-    // 当前定时递减计数值,可以指示 start_delay_ticks 或  duration_ticks 计数完成
+    /** \brief 当前定时递减计数值,可以指示 start_delay_ticks 或  duration_ticks 计数完成 */
     uint32_t delay_ticks;
 
-    // 定时回调函数
+    /** \brief 定时回调函数 */
     void (*pfn_timer_func) (void *p_arg);
 
-    // 传递给回调函数的参数
+    /** \brief 传递给回调函数的参数 */
     void *p_arg;
 
-    // 定时器配置参数
+    /** \brief 定时器配置参数 */
     uint32_t config;
 
-    // 定时器状态
+    /** \brief 定时器状态 */
     rtos_timer_sate_t state;
 }rtos_timer_t;
+
+
+/** \brief 定时器状态信息结构体声明 */
+typedef struct rtos_timer_info_get {
+    
+    /** \brief 初次启动延后的ticks数   */
+    uint32_t start_delay_ticks;
+    
+    /** \brief 周期定时时的周期tick数   */
+    uint32_t duration_ticks;
+    
+    /** \brief 定时回调函数 */
+    void (*pfn_timer_func) (void *p_arg);
+
+    /** \brief 传递给回调函数的参数 */
+    void *p_arg;
+    
+    /** \brief 定时器配置参数 */
+    uint32_t config;
+
+    /** \brief 定时器状态 */
+    rtos_timer_sate_t state;
+    
+}rtos_timer_info_get_t;
 
 
 /** \brief 软硬定时器种类 */
@@ -105,7 +129,25 @@ void rtos_timer_start (rtos_timer_t * p_timer);
  * \param[in] p_timer: 指向定时器结构体的指针
  * \return 无
  */
-void rtos_timer_stop (rtos_timer_t * p_timer);                      
+void rtos_timer_stop (rtos_timer_t * p_timer);  
+
+
+
+/**
+ * \brief 查询定时器状态信息
+ * \param[in] p_timer: 指向定时器结构体的指针
+ * \param[in] p_info : 定时器状态信息结构体声明
+ * \return 无
+ */
+void rtos_timer_info_get (rtos_timer_t * p_timer, rtos_timer_info_get_t *p_info);
+
+
+/**
+ * \brief 销毁u定时器
+ * \param[in] p_timer: 指向定时器结构体的指针
+ * \return 无
+ */
+void rtso_timer_destroy (rtos_timer_t * p_timer) ;
 
 
 

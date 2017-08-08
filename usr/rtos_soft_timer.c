@@ -164,6 +164,42 @@ void rtos_timer_stop (rtos_timer_t * p_timer)
     }
 }
 
+/**
+ * \brief 销毁定时器
+ */
+void rtso_timer_destroy (rtos_timer_t * p_timer)    
+{   
+    /* 先停止定时器 */
+    rtos_timer_stop(p_timer);
+   
+    p_timer->state = RTOS_TIMER_DESTROYED;
+ 
+}
+
+/**
+ * \brief 查询定时器状态信息
+ */
+void rtos_timer_info_get (rtos_timer_t *p_timer, rtos_timer_info_get_t *p_info)    
+{
+    uint32_t status = 0; 
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+     status = rtos_task_critical_entry(); 
+    
+     p_info->config  =  p_timer->config;
+     p_info->start_delay_ticks = p_timer->start_delay_ticks;
+     p_info->duration_ticks =  p_timer->duration_ticks;
+     p_info->p_arg = p_timer->p_arg;
+     p_info->pfn_timer_func = p_timer->pfn_timer_func;
+     p_info->state = p_timer->state;
+    
+    
+     /* 退出临界区 */
+     rtos_task_critical_exit(status); 
+ 
+}
+
+
 
 
 /** \brief 任务堆栈 */
@@ -188,7 +224,7 @@ static void rtos_timersoft_list_call_fuc (rtos_task_list_t *p_softtimer_list)
         p_softtimer = RTOS_CONTAINER_OF(p_timer_node, rtos_timer_t, timer_node);
         
         /* 如果延时已到，则调用定时器处理函数 */
-        if ((p_softtimer->delay_ticks == 0) || (--p_softtimer->delay_ticks)) {
+        if ((p_softtimer->delay_ticks == 0) || (--p_softtimer->delay_ticks == 0)) {
             
             /* 切换为正在运行状态 */
             p_softtimer->state = RTOS_TIMER_RUNNING;
@@ -211,7 +247,6 @@ static void rtos_timersoft_list_call_fuc (rtos_task_list_t *p_softtimer_list)
             }
             
         }
-        
 
         
     }

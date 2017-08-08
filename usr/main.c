@@ -34,6 +34,7 @@
 #include "rtos_memblock.h"
 #include "rtos_flaggroup.h"
 #include "rtos_mutex_sem.h"
+#include "rtos_soft_timer.h"
 
 #define   TASK_STACK_SIZE  1024  
 
@@ -102,11 +103,22 @@ void idle_task_entry (void *p_arg)
 }
 
 /**
- * \brief 互斥信号量
+ * \brief 软件定时器
  */
-rtos_mutex_sem_t mutex_sem;
+rtos_timer_t timer1;
+rtos_timer_t timer2;
+rtos_timer_t timer3;
 
-    
+uint32_t timer1_flag = 0;
+uint32_t timer2_flag = 0;
+uint32_t timer3_flag = 0;
+
+static void __pfn_timer_func (void * arg)
+{
+    // 简单的将最低位取反，输出高低翻转的信号
+    uint32_t * ptrBit = (uint32_t *)arg;
+    *ptrBit ^= 0x01;
+}
 
 
 /**
@@ -115,27 +127,36 @@ rtos_mutex_sem_t mutex_sem;
  */
 void first_task_entry (void *p_arg)
 {  
+    uint32_t timer_stop = 0;
     
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(10); 
     
-    rtos_mutex_sem_init(&mutex_sem);
+    // 定时器1：100个tick后启动，以后每10个tick启动一次
+    rtos_timer_init(&timer1, 100, 10, __pfn_timer_func, &timer1_flag, TIMER_CONFIG_TYPE_HARD);
+    rtos_timer_start(&timer1);
     
+    // 定时器2：200个tick后启动，以后每20个tick启动一次
+    rtos_timer_init(&timer2, 200, 20, __pfn_timer_func, &timer2_flag, TIMER_CONFIG_TYPE_HARD); 
+    rtos_timer_start(&timer2);
+    
+    // 定时器3：300个tick后启动，启动之后关闭
+    rtos_timer_init(&timer3, 300, 0, __pfn_timer_func, &timer3_flag, TIMER_CONFIG_TYPE_HARD);  
+    rtos_timer_start(&timer3);    
       
-   
-    for (; ;) {   
-
-        rtos_mutex_sem_wait(&mutex_sem, 0);
-        rtos_mutex_sem_wait(&mutex_sem, 0);          
+    for (; ;) {         
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0;
-        rtos_sched_mdelay(1);   
-        
-        rtos_mutex_sem_notify(&mutex_sem);
-        rtos_mutex_sem_notify(&mutex_sem);
-     
+        rtos_sched_mdelay(1);  
+
+        /* 200个tick后，手动关闭定时器1 */ 
+        if (timer_stop == 0) {
+            rtos_sched_mdelay(200); 
+            rtos_timer_stop(&timer1);
+        }            
+             
     }
 }
 
@@ -144,14 +165,9 @@ void first_task_entry (void *p_arg)
  */
 void second_task_entry (void *p_arg)
 {   
-    int error = 0;
-    
-        
+         
     for (; ;) {
         
-        rtos_mutex_sem_wait(&mutex_sem, 0);
-        rtos_mutex_sem_wait(&mutex_sem, 0); 
-
 
         /*
          * 当运行至此处时，由于互斥信号量的优先级继承机制
@@ -161,10 +177,7 @@ void second_task_entry (void *p_arg)
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1);  
-
-        rtos_mutex_sem_notify(&mutex_sem);
-        rtos_mutex_sem_notify(&mutex_sem);        
+        rtos_sched_mdelay(1);       
  
     }
 }
@@ -176,8 +189,7 @@ void third_task_entry (void *p_arg)
 {     
        
     for (; ;) {
-        
-             
+                    
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
@@ -192,8 +204,7 @@ void forth_task_entry (void *p_arg)
 {        
     
     for (; ;) {
-        
-                
+                        
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
@@ -223,6 +234,9 @@ int main (void)
     
     /* 初始化任务延时队列 */    
     rtos_task_delayed_init(&rtos_task_delayedlist);
+    
+    /* 初始化定时器模块 */  
+    rtos_timer_moudule_init(); 
     
     /* 任务初始化函数 */
     rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
