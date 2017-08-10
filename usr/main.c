@@ -155,6 +155,7 @@ void first_task_entry (void *p_arg)
         if (timer_stop == 0) {
             rtos_sched_mdelay(200); 
             rtos_timer_stop(&timer1);
+            timer_stop =1;
         }            
              
     }

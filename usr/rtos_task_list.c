@@ -1,6 +1,7 @@
 /**
  * \file
  * \brief 操作系统链表实现 
+ * \note  结点移除之后不能重复删除
  * \internal
  * \par Modification history
  * - 1.00 17-07-10  nwt, first implementation.
@@ -150,7 +151,7 @@ void rtos_task_list_add (rtos_task_list_t *p_rtos_task_list, dlist_node_t *p_pos
 
 
 /**
- * \brief 在任务链表中删除第1个用户结点
+ * \brief 在任务链表中删除第1个用户结点，删除之后结点马上指向自身
  */
 dlist_node_t *rtos_task_list_remove_first (rtos_task_list_t *p_rtos_task_list)
 {
@@ -176,7 +177,7 @@ dlist_node_t *rtos_task_list_remove_first (rtos_task_list_t *p_rtos_task_list)
 
 
 /**
- * \brief 在任务链表中删除最后1个用户结点
+ * \brief 在任务链表中删除最后1个用户结点，删除之后结点马上指向自身
  */
 dlist_node_t * rtos_task_list_remove_last (rtos_task_list_t * p_rtos_task_list)
 {
@@ -199,7 +200,7 @@ dlist_node_t * rtos_task_list_remove_last (rtos_task_list_t * p_rtos_task_list)
 }
 
 /**
- * \brief 在任务链表删除指定结点
+ * \brief 在任务链表删除指定结点，删除之后结点马上指向自身
  */
 void rtos_task_list_remove (rtos_task_list_t * p_rtos_task_list, dlist_node_t *p_node)
 {

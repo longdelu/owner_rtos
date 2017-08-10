@@ -54,10 +54,10 @@ void rtos_timer_init (rtos_timer_t * p_timer,
     p_timer->config         = config;
     
     if (start_delay_ticks == 0) {
-        p_timer->start_delay_ticks = duration_ticks;
+        p_timer->delay_ticks = duration_ticks;
              
     } else {
-        p_timer->start_delay_ticks = start_delay_ticks;
+        p_timer->delay_ticks = start_delay_ticks;
     }
     
     
@@ -216,11 +216,30 @@ static void rtos_timersoft_list_call_fuc (rtos_task_list_t *p_softtimer_list)
 {
     dlist_node_t *p_timer_node = NULL;
     
+    dlist_node_t *p_end = NULL; 
+    
+    dlist_node_t *p_next = NULL; 
+    
     rtos_timer_t * p_softtimer = NULL;
     
-    /* 检查所有任务的delay_ticks数，如果不0的话，减1。*/
-    for (p_timer_node = p_softtimer_list->head_node.p_next; p_timer_node != &p_softtimer_list->head_node; p_timer_node = p_timer_node->p_next) {
+        /* 获得延时队列第一个用户结点 */
+    p_next  = dlist_begin_get(&p_softtimer_list->head_node);
+    
+    /*  获得延时队列的结束位置: 为头结点本身 */
+    p_end  = dlist_end_get(&p_softtimer_list->head_node);
+    
+    
+
+    /* 检查所有定时器的delay_ticks数，如果不0的话，减1。*/
+    while(p_next != p_end) {   
+
+        /* 先纪录下当前结点 */
+        p_timer_node =  p_next;
+           
+        /* 先记录下一个结点的信息 */
+        p_next = dlist_next_get(&p_softtimer_list->head_node, p_next);
         
+           
         p_softtimer = RTOS_CONTAINER_OF(p_timer_node, rtos_timer_t, timer_node);
         
         /* 如果延时已到，则调用定时器处理函数 */

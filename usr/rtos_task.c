@@ -109,7 +109,7 @@ void rtos_task_init(rtos_task_t *task,
     
     task->p_event = NULL;                                          // 没有等待事件       
     task->p_event_msg = NULL;                                      // 没有存储等待事件的消息
-    task->event_wait_result  =  RTOS_EVENT_TYPE_UNKNOW;            // 没有等待事件错误
+    task->event_wait_result  =  RTOS_OK;                           // 没有等待事件错误
 
     /* 初始化事件标记组 */
     task->wait_flags_grp_type = 0;                                   
@@ -118,10 +118,8 @@ void rtos_task_init(rtos_task_t *task,
     
     /*
      * \note 调用该函数，一定要保证该优先级的任务头结点已经有正确的指向
-     */
-    rtos_task_list_add_tail(&task_table[task_prio], &(task->prio_node));  // 插入对应的优先级队列中
-    
-    rtos_task_bitmap_set(&task_priobitmap, task_prio);             // 标记优先级位置中的相应位
+     */    
+    rtos_task_sched_ready(task);
 } 
 
 /**
