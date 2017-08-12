@@ -20,8 +20,6 @@
  * - 1.00 17-07-10  nwt, first implementation.
  * \endinternal
  */
-#include "arm.h"
-#include "c_lib.h"
 #include "rtos_task.h"
 #include "rtos_task_switch.h"
 #include "rtos_task_delay.h"
@@ -29,6 +27,7 @@
 #include "rtos_task_bitmap.h"
 #include "rtos_config.h"
 #include "rtos_task_event.h"
+#include "rtos_hook.h"
 
 /** \brief 任务优先级的标记位置结构全变量 */
 extern rtos_task_bitmap_t task_priobitmap;
@@ -119,6 +118,14 @@ void rtos_task_init(rtos_task_t *task,
      * \note 调用该函数，一定要保证该优先级的任务头结点已经有正确的指向
      */    
     rtos_task_sched_ready(task);
+
+   
+#if RTOS_ENABLE_HOOK == 1
+   /* 任务初始化钩子函数 */
+   rtos_hook_task_init(task);
+   
+#endif
+
 } 
 
 /**
@@ -252,7 +259,14 @@ void rtos_task_sched(void)
     /* p_current_task 与 p_next_task 这两个者会在PendSVC异常处理函数中修正其值 */
     if (p_current_task !=  p_temp_task) {
                 
-        p_next_task =  p_temp_task;    
+        p_next_task =  p_temp_task; 
+
+#if RTOS_ENABLE_HOOK == 1
+
+        /* 任务切换钩子函数 */
+        rtos_hook_task_swtich(p_current_task, p_next_task);
+   
+#endif         
 
         /* 触发PendSVC异常，进行任务切换 */
         rtos_task_switch();

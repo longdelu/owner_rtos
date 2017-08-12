@@ -28,6 +28,7 @@
 #include "rtos_task_event.h"
 #include "rtos_soft_timer.h"
 #include "rtos_cpu_use.h"
+#include "rtos_hook.h"
 
 
 /** \brief  任务延时队列 */
@@ -204,6 +205,13 @@ void SysTick_Handler (void)
 #if RTOS_ENABLE_TIMER == 1    
     /* 通知定时器模块节拍事件 */
     rtos_timer_moudule_tick_notify();
+#endif
+
+#if RTOS_ENABLE_HOOK == 1
+
+     /* 系统滴答调用钩子函数 */
+     rtos_hook_systick();
+
 #endif
             
     /* 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度 */

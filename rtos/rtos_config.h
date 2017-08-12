@@ -68,6 +68,7 @@ extern "C" {
 #define   RTOS_ENABLE_TIMER             0     /**< \brief 是否使能定时器 */
  
 #define   RTOS_ENABLE_CPU_USE_CHECK     0     /**< \brief 是否检查CPU的占有率  */ 
+#define   RTOS_ENABLE_HOOK              0     /**< \brief 是否使用钩子函数     */     
     
     
 /** @} */

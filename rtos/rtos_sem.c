@@ -26,7 +26,8 @@
  #include "rtos_task.h"
  
 #if RTOS_ENABLE_SEM == 1
- /**
+
+/**
  * \brief 初始化计数信号量，start_count表明该信号量一开始就有几个计数信号量可用
  */  
 void rtos_sem_init(rtos_sem_t *p_sem, uint32_t start_count, uint32_t max_count)

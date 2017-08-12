@@ -22,6 +22,7 @@
  */
  
  #include "rtos_init.h"
+ #include "rtos_hook.h"
  
 /**
  * \name RTOS 相关全局变量声明
@@ -102,6 +103,13 @@ void idle_task_entry (void *p_arg)
         rtos_task_critical_exit(status); 
                  
 #endif
+        
+#if RTOS_ENABLE_HOOK == 1
+
+   /* 空闲钩子函数 */
+   rtos_hook_cpu_idle();
+   
+#endif        
 
         
     }

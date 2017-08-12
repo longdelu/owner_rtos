@@ -29,10 +29,42 @@ extern "C" {
 #endif
     
 #include "c_lib.h"
+#include "rtos_task.h"
+    
+/**
+ * \brief cpu空闲时的hooks
+ * \param 无 
+ * \return 无
+ */ 
+void rtos_hook_cpu_idle (void);
 
+
+/**
+ * \brief 时钟节拍Hooks
+ * \param 无 
+ * \return 无
+ */ 
+void rtos_hook_systick (void);
+
+/**
+ * \brief 任务切换hooks
+ * \param[in] p_task_from: 任务结构体指针
+ * \param[in] p_task_to: 任务结构体指针
+ * \return 无
+ */ 
+void rtos_hook_task_swtich (rtos_task_t *p_task_from, rtos_task_t *p_task_to);
+
+
+/**
+ * \brief 任务初始化的Hooks
+ * \param[in] p_task: 任务结构体指针
+ * \return 无
+ */ 
+void rtos_hook_task_init (rtos_task_t *p_task); 
     
 
     
+
 #ifdef __cplusplus
 }
 #endif

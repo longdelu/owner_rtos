@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "c_lib.h"
+#include "arm.h"    
 #include "rtos_config.h"    
 #include "rtos_task_bitmap.h"
 #include "rtos_task_list.h"
