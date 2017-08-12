@@ -5,7 +5,13 @@
 extern "C" {
 #endif
 
+#ifdef ARMCM3
 #include "ARMCM3.H"
+#endif
+    
+#ifdef STM32F429xx
+#include "stm32f4xx.h"    
+#endif
 
 
 
