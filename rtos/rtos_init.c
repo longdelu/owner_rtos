@@ -49,6 +49,15 @@ taskstack_t idle_task_stack_buf[RTOS_IDLE_TASK_STACK_SIZE];
 /** \brief 同一个优先级任务的链表头结点 */
 rtos_task_list_t task_table[TASK_COUNT];
 
+taskstack_t idle_task_stack_buf[RTOS_IDLE_TASK_STACK_SIZE];
+
+/* CPU占有率测量的时候,任务初始化要放在空闲任务时时面执行 */    
+#if RTOS_CPU_USAGESTAT == 1
+    /** \brief 指向用户应用的函数指针 */
+    rtos_pfn_no_arg_t pfn_app_task_init;  
+#endif  
+
+
 /** @} */
 
 /**
@@ -56,8 +65,40 @@ rtos_task_list_t task_table[TASK_COUNT];
  */
 void idle_task_entry (void *p_arg)
 {
+  
+#if RTOS_CPU_USAGESTAT == 1
+    
+    /* CPU占有率测量的时候， 任务调度禁止 */   
+    rtos_task_sched_disable();
+        
+   /* CPU占有率测量的时候,任务初始化要放在空闲任务里面执行 */    
+    rtos_timer_task_init();
+    pfn_app_task_init();       
+
+    /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
+    rtos_systick_init(RTOS_SYSTICK_PERIOD); 
+    
+    /* 等待时钟同步 */
+    rtos_cpu_use_sync_with_systick();
+    
+#endif    
+    
     for (; ;) {
-        /* 空闲任务暂时什么都不做，它可以被用户任务抢占 */
+        
+    /* 空闲任务可以添加一些钩子函数 */
+        
+#if RTOS_CPU_USAGESTAT == 1
+        /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+        uint32_t status = rtos_task_critical_entry(); 
+        
+        /*　统计运行空闲任务的计数 */
+        rtos_cpu_idle_count_inc();
+        
+        /* 退出临界区 */
+        rtos_task_critical_exit(status); 
+                 
+#endif
+
         
     }
 }
@@ -84,11 +125,27 @@ int rtos_init (void)
     /* 初始化定时器模块 */  
     rtos_timer_moudule_init(); 
 
+    /* 初始化定时器任务 */    
+#if RTOS_CPU_USAGESTAT == 0
+    rtos_timer_task_init();
+    
+#endif
+
     /* 空闲任务初始化 */
     rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf));
 
     return RTOS_OK;
 }
+
+
+/**
+ * \brief rtos cpu占有率测试
+ */
+void rtos_cpu_use_check_test (rtos_pfn_no_arg_t p_app_task_init)
+{
+     pfn_app_task_init  =  p_app_task_init;      
+}
+
 
 
 /**
@@ -100,8 +157,11 @@ void rtos_start (void)
     p_next_task =  rtos_task_highest_ready();
     
     /*  切换到p_next_task 指向的任务，这个函数永远不会返回 */
-    rtos_task_run_first();	
+    rtos_task_run_first();
 }
+
+
+
 
 
 

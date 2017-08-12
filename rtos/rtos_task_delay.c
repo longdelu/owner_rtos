@@ -39,6 +39,16 @@ uint32_t rtos_get_systick(void)
 }
 
 /**
+ * \brief  设置当前系统滴答计数值
+ */ 
+void rtos_set_systick (uint32_t rtos_systick_value_reload)
+{
+    rtos_systick =  rtos_systick_value_reload;   
+}
+
+
+
+/**
  * \brief  操作系统普通延时，没有任务调度, 以10ms为一个时基单位
  */
 void rtos_mdelay (int32_t ms) { 

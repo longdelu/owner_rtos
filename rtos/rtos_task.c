@@ -114,8 +114,7 @@ void rtos_task_init(rtos_task_t *task,
     /* 初始化事件标记组 */
     task->wait_flags_grp_type = 0;                                   
     task->event_flags_grp = 0;
-    
-    
+
     /*
      * \note 调用该函数，一定要保证该优先级的任务头结点已经有正确的指向
      */    

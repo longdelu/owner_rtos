@@ -328,7 +328,13 @@ void  rtos_timer_moudule_init (void)
     /* 相关信号量初始化 */    
     rtos_sem_init(&__rtos_timer_tick_sem, 0, 0);
     rtos_sem_init(&__rtos_softtimer_sem, 1, 1);    
-    
+}
+
+/**
+ * \brief 初始化软定时器任务
+ */
+void rtos_timer_task_init (void)
+{    
 #if RTOS_TIMER_TASK_PRIO >= (RTOS_PRIO_COUNT - 1)
     #error "The proprity of timer task must be greater then (RTOS_PRIO_COUNT - 1)"
 #endif

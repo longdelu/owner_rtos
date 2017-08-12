@@ -57,10 +57,6 @@ rtos_task_t forth_task;
 /**
  * \brief 任务状态信息
  */
-rtos_task_info_t task1_info;
-rtos_task_info_t task2_info;
-rtos_task_info_t task3_info;
-rtos_task_info_t task4_info;
 
 /**
  * \brief 当前任务入口函数
@@ -68,18 +64,18 @@ rtos_task_info_t task4_info;
  */
 void first_task_entry (void *p_arg)
 {  
-    
+/* CPU不测量占有率的时候 */    
+#if RTOS_CPU_USAGESTAT == 0    
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
-    rtos_systick_init(10); 
+    rtos_systick_init(RTOS_SYSTICK_PERIOD); 
+#endif
     
     for (; ;) {         
          
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0;
-        rtos_sched_mdelay(1);  
-
-        rtos_task_info_get(p_current_task, &task1_info);        
+        rtos_sched_mdelay(1);      
              
     }
 }
@@ -100,8 +96,6 @@ void second_task_entry (void *p_arg)
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
         rtos_sched_mdelay(1);       
-        
-        rtos_task_info_get(p_current_task, &task2_info);  
  
     }
 }
@@ -118,8 +112,7 @@ void third_task_entry (void *p_arg)
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
         rtos_sched_mdelay(1);    
-
-        rtos_task_info_get(p_current_task, &task3_info);          
+         
     }
 }
 
@@ -135,10 +128,21 @@ void forth_task_entry (void *p_arg)
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
         rtos_sched_mdelay(1); 
-        rtos_task_info_get(p_current_task, &task4_info);  
                       
     }
 }
+
+/**
+ * \brief RTOS 应用相关任务初始化
+ */
+void  rtos_task_app_init (void) 
+{
+    rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
+    rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
+    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
+    rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf));    
+    
+}    
 
 /**
  * \brief 入口函数
@@ -151,13 +155,26 @@ int main (void)
    
     /* RTOS初始化 */
     rtos_init();
-    
+
+/* CPU不测量占有率的时候 */    
+#if RTOS_CPU_USAGESTAT == 0
+  
     /* 任务初始化函数 */
-    rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
-    rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
-    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
-    rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf));
-          
+    rtos_task_app_init();
+  
+#else
+    
+    /* 表明是在测试CPU占有率 */
+    rtos_cpu_use_check_test(rtos_task_app_init);
+    
+    /* CPU占有率测试初始化 */
+    rtos_cpu_use_init();
+    
+    
+    
+
+#endif    
+    
     /* 启动操作系统, 自动查找最高优先级的任务运行,这个函数永远不会返回 */
     rtos_start();
     

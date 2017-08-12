@@ -27,6 +27,7 @@
 #include "rtos_config.h"
 #include "rtos_task_event.h"
 #include "rtos_soft_timer.h"
+#include "rtos_cpu_use.h"
 
 
 /** \brief  任务延时队列 */
@@ -182,13 +183,20 @@ void rtos_systick_init (uint32_t ms)
  */
 void SysTick_Handler (void) 
 {
-    /*　临界区保户　*/
+    /* 临界区保户 */
     uint32_t status = rtos_task_critical_entry();
+          
+    __rtos_task_delay_tick_handler();    
     
     /* 滴答计数 */
-    rtos_systick++;
-        
-    __rtos_task_delay_tick_handler();
+    rtos_systick++;   
+    
+#if RTOS_CPU_USAGESTAT == 1
+   
+    /* 检查cpu使用率 */
+    rtos_cpu_use_check();   
+    
+#endif 
     
     /* 退出临界区保护 */
     rtos_task_critical_exit(status);
@@ -198,6 +206,16 @@ void SysTick_Handler (void)
             
     /* 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度 */
     rtos_task_sched(); 
+}
+
+
+/**
+ * \brief  滴答计数初始化
+ */
+void rtos_tick_count_init (void)
+{
+    
+    rtos_systick = 0;   
 }
 
 

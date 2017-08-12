@@ -50,9 +50,25 @@ extern "C" {
 #include "rtos_flaggroup.h"
 #include "rtos_mutex_sem.h"
 #include "rtos_soft_timer.h" 
+#include "rtos_cpu_use.h"
+#include "rtos_hook.h"
 
 
 /** @} */
+
+/**
+ * \name RTOS 回调函数类型声明
+ * @{
+ */
+ 
+/** \brief 回调函数定义，带参数 */
+typedef void (*rtos_pfn_t) (void *p_arg); 
+
+/** \brief 回调函数定义，无参数 */
+typedef void (*rtos_pfn_no_arg_t) (void); 
+
+/** @} */
+
 
 /**
  * \name RTOS 相关全局变量声明
@@ -89,6 +105,14 @@ extern rtos_task_list_t task_table[TASK_COUNT];
  * \return 无
  */
 int rtos_init (void);
+
+
+/**
+ * \brief rtos cpu占有率测试
+ * \param[in]:无
+ * \return 无
+ */
+void rtos_cpu_use_check_test (rtos_pfn_no_arg_t p_app_task_init);
 
 
 /**

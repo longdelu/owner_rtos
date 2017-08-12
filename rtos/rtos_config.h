@@ -51,26 +51,21 @@ extern "C" {
 #define   RTOS_TIMER_TASK_PRIO      RTOS_PRIO_COUNT - 2        
 
     
-#define   TIMER_TASK_STACK_SIZE     1024    
+#define   TIMER_TASK_STACK_SIZE     1024   
+
+
+/** \brief 是否检查CPU的占有率        */  
+#define   RTOS_CPU_USAGESTAT        1
+
+/** \brief RTOS节拍间隔周期，单位为ms */ 
+#define   RTOS_SYSTICK_PERIOD        10
+
+/** \brief 1秒（S)时间内的SYSTICK计数 */ 
+#define   RTOS_PER_SEC_SYSTICK_COUNT      (1000 / RTOS_SYSTICK_PERIOD)
     
     
 /** @} */
     
-/**
- * \name RTOS 操作结果 
- * @{
- */     
-#define  RTOS_OK                         0   /** \brief 操作成功OK */               
-#define  RTOS_ERROR                      1   /** \brief 操作失败 */
-#define  RTOS_EINVAILD                   2   /** \brief 操作无效 */  
-#define  RTOS_TIMEOUT                    3   /** \brief 操作超时 */
-#define  RTOS_UNUSED                     4   /** \brief 资源不可用 */
-#define  RTOS_DEL                        5   /** \brief 资源被删除 */
-#define  RTOS_FULL                       6   /** \brief 资源已满 */
-#define  RTOS_ERROR_OWER                 7   /** \brief不匹配的所有者 */
-
-
-/** @} */
     
     
 #ifdef __cplusplus

@@ -17,6 +17,16 @@ extern "C" {
  */    
 uint32_t rtos_get_systick (void); 
     
+    
+/**
+ * \brief  设置当前系统滴答计数值
+ *
+ * \param[in] rtos_systick_value_reload : 系统滴答计数值
+ *
+ * \return    无
+ */ 
+void rtos_set_systick (uint32_t rtos_systick_value_reload);    
+    
 
 /**
  * \brief  无任务调度的延时
@@ -38,6 +48,14 @@ void rtos_mdelay (int32_t ms);
  * \return    无
  */
 void rtos_systick_init (uint32_t ms);
+
+
+/**
+ * \brief  滴答计数初始化
+ * \param[in] 无
+ * \return    无
+ */
+void rtos_tick_count_init (void);
 
 
 /**

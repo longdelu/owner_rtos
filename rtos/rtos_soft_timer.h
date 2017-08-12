@@ -164,7 +164,15 @@ void rtos_timer_moudule_tick_notify (void);
  * \param[in] 无
  * \return 无
  */
-void  rtos_timer_moudule_init (void);                       
+void  rtos_timer_moudule_init (void);    
+
+
+/**
+ * \brief 初始化软定时器任务
+ * \param[in] 无
+ * \return 无
+ */
+void rtos_timer_task_init (void);
     
     
 #ifdef __cplusplus

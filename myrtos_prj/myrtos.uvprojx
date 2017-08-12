@@ -470,6 +470,16 @@
               <FilePath>..\rtos\rtos_memblock.c</FilePath>
             </File>
             <File>
+              <FileName>rtos_cpu_use.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\rtos\rtos_cpu_use.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_hook.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\rtos\rtos_hook.c</FilePath>
+            </File>
+            <File>
               <FileName>rtos_common.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\rtos\rtos_common.h</FilePath>
