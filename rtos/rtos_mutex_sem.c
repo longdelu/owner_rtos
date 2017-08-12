@@ -21,7 +21,9 @@
  * \endinternal
  */
  
- #include "rtos_mutex_sem.h"
+#include "rtos_mutex_sem.h"
+
+#if RTOS_ENABLE_MUTEX_SEM == 1
  
  /**
  * \brief 初始化互斥信号量
@@ -326,6 +328,8 @@ uint32_t rtos_mutex_sem_destroy (rtos_mutex_sem_t *p_mutex_sem)
     return count;    
     
 }
+
+#endif
  
  
  

@@ -65,7 +65,7 @@ rtos_task_t forth_task;
 void first_task_entry (void *p_arg)
 {  
 /* CPU不测量占有率的时候 */    
-#if RTOS_CPU_USAGESTAT == 0    
+#if RTOS_ENABLE_CPU_USE_CHECK == 0    
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(RTOS_SYSTICK_PERIOD); 
 #endif
@@ -157,7 +157,7 @@ int main (void)
     rtos_init();
 
 /* CPU不测量占有率的时候 */    
-#if RTOS_CPU_USAGESTAT == 0
+#if RTOS_ENABLE_CPU_USE_CHECK == 0
   
     /* 任务初始化函数 */
     rtos_task_app_init();

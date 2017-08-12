@@ -52,10 +52,10 @@ rtos_task_list_t task_table[TASK_COUNT];
 taskstack_t idle_task_stack_buf[RTOS_IDLE_TASK_STACK_SIZE];
 
 /* CPU占有率测量的时候,任务初始化要放在空闲任务时时面执行 */    
-#if RTOS_CPU_USAGESTAT == 1
-    /** \brief 指向用户应用的函数指针 */
-    rtos_pfn_no_arg_t pfn_app_task_init;  
-#endif  
+
+/** \brief 指向用户应用的函数指针 */
+rtos_pfn_no_arg_t pfn_app_task_init;  
+ 
 
 
 /** @} */
@@ -66,13 +66,17 @@ taskstack_t idle_task_stack_buf[RTOS_IDLE_TASK_STACK_SIZE];
 void idle_task_entry (void *p_arg)
 {
   
-#if RTOS_CPU_USAGESTAT == 1
+#if RTOS_ENABLE_CPU_USE_CHECK == 1
     
     /* CPU占有率测量的时候， 任务调度禁止 */   
     rtos_task_sched_disable();
-        
+    
+#if RTOS_ENABLE_TIMER == 1        
    /* CPU占有率测量的时候,任务初始化要放在空闲任务里面执行 */    
     rtos_timer_task_init();
+#endif    
+    
+    /* 应用任务初始化 */
     pfn_app_task_init();       
 
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
@@ -87,7 +91,7 @@ void idle_task_entry (void *p_arg)
         
     /* 空闲任务可以添加一些钩子函数 */
         
-#if RTOS_CPU_USAGESTAT == 1
+#if RTOS_ENABLE_CPU_USE_CHECK == 1
         /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
         uint32_t status = rtos_task_critical_entry(); 
         
@@ -122,13 +126,16 @@ int rtos_init (void)
     /* 初始化任务延时队列 */    
     rtos_task_delayed_init(&rtos_task_delayedlist);
     
+#if RTOS_ENABLE_TIMER == 1    
     /* 初始化定时器模块 */  
     rtos_timer_moudule_init(); 
 
     /* 初始化定时器任务 */    
-#if RTOS_CPU_USAGESTAT == 0
+#if RTOS_ENABLE_CPU_USE_CHECK == 0
     rtos_timer_task_init();
     
+#endif
+
 #endif
 
     /* 空闲任务初始化 */

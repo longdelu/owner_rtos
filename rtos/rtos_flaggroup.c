@@ -21,9 +21,9 @@
  * \endinternal
  */
  
- #include "rtos_flaggroup.h"
+#include "rtos_flaggroup.h"
  
- 
+#if RTOS_ENABLE_FLAG_GRP == 1 
 /**
  * \brief  辅助函数。检查并消耗掉事件标志
  * \param[in] p_flag_grp: 指向计数事件标记组结构体的指针
@@ -133,8 +133,6 @@ int32_t rtos_flag_grp_wait (rtos_flag_grp_t *p_flag_grp,
     return result;
     
 }
-
-
 
 
 /**
@@ -269,7 +267,9 @@ uint32_t rtos_flag_grp_destroy (rtos_flag_grp_t *p_flag_grp)
     rtos_task_critical_exit(status);  
     
     return count;           
-} 
+}
+
+#endif
  
  
  

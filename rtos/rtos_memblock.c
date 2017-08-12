@@ -21,9 +21,9 @@
  * \endinternal
  */
  
- #include "rtos_memblock.h"
+#include "rtos_memblock.h"
  
- 
+#if RTOS_ENABLE_MEMBLOCK == 1 
 /**
  * \brief ³õÊ¼»¯´æ´¢¿ØÖÆ¿é
  */ 
@@ -199,6 +199,8 @@ uint32_t rtos_memblock_destroy (rtos_memblock_t *p_memblock)
     
     return count;   
 } 
+
+#endif
  
  
 /* end of file */

@@ -21,7 +21,9 @@
  * \endinternal
  */
  
- #include "rtos_mbox.h"
+#include "rtos_mbox.h"
+
+#if RTOS_ENABLE_MBOX == 1  
  
  /**
  * \brief 初始化消息邮箱
@@ -252,6 +254,8 @@ void rtos_mbox_info_get (rtos_mbox_t *p_mbox, rtos_mbox_info_t *p_info)
     /* 退出临界区 */
     rtos_task_critical_exit(status);  
 }
+
+#endif
 
  
  

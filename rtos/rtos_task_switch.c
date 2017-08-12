@@ -58,9 +58,7 @@ __asm void PendSV_Handler (void)
     MRS     R0, PSP                
     
     /* if 这是由 rtos_task_switch ()触发的(此时，PSP肯定不会是0了，0的话必定是 rtos_task_run_first() 触发的 */
-    CBZ     R0, PendSVHandler_nosave 
-    
-    NOP
+    CBZ     R0, PendSVHandler_nosave    
 
     /* 先把RO的寄存器的值递减后，再把R11-R4寄存器里面的内容放到以RO的值为地址的内存单元里面, 即PSP指向的用户堆栈里面， 最后向RO重新写入当前的值R0的值 */
     STMDB    R0!,  {R4-R11}  //先加载R11,再加载R4

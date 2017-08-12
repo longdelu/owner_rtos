@@ -24,6 +24,8 @@
 #include "rtos_soft_timer.h"
 #include "rtos_sem.h"
 
+#if RTOS_ENABLE_TIMER == 1
+
 static  rtos_task_list_t __rtos_timer_hard_list;
 static  rtos_task_list_t __rtos_timer_soft_list;
 
@@ -338,15 +340,13 @@ void rtos_timer_task_init (void)
 #if RTOS_TIMER_TASK_PRIO >= (RTOS_PRIO_COUNT - 1)
     #error "The proprity of timer task must be greater then (RTOS_PRIO_COUNT - 1)"
 #endif
-    
-    
+     
     /* 定时器任务初始化函数 */
     rtos_task_init(&__rtos_timer_task_task, rtos_timersoft_task, NULL, RTOS_TIMER_TASK_PRIO, __rtos_timer_task_stack_buf, sizeof(__rtos_timer_task_stack_buf)); 
        
 }
 
-
-
+#endif
 
 /* end of file */
 

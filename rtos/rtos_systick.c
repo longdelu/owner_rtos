@@ -191,7 +191,7 @@ void SysTick_Handler (void)
     /* 滴答计数 */
     rtos_systick++;   
     
-#if RTOS_CPU_USAGESTAT == 1
+#if RTOS_ENABLE_CPU_USE_CHECK == 1
    
     /* 检查cpu使用率 */
     rtos_cpu_use_check();   
@@ -201,8 +201,10 @@ void SysTick_Handler (void)
     /* 退出临界区保护 */
     rtos_task_critical_exit(status);
     
+#if RTOS_ENABLE_TIMER == 1    
     /* 通知定时器模块节拍事件 */
     rtos_timer_moudule_tick_notify();
+#endif
             
     /* 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度 */
     rtos_task_sched(); 

@@ -25,6 +25,8 @@
 #include "rtos_task_delay.h"
 #include "rtos_task_critical.h"
 
+#if RTOS_ENABLE_CPU_USE_CHECK == 1
+
 /* \brief   ±÷”Õ¨≤Ω */
 static uint32_t rtos_enable_use_stat = 0; 
 
@@ -115,6 +117,8 @@ float rtos_cpu_use_get (void)
       
     return cpu_use;
 }
+
+#endif
 
 
 
