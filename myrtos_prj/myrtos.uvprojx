@@ -415,11 +415,6 @@
               <FilePath>..\usr\rtos_task_bitmap.c</FilePath>
             </File>
             <File>
-              <FileName>rtos_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\usr\rtos_config.h</FilePath>
-            </File>
-            <File>
               <FileName>rtos_task_list.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\usr\rtos_task_list.c</FilePath>
@@ -463,6 +458,21 @@
               <FileName>rtos_soft_timer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\usr\rtos_soft_timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_common.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\usr\rtos_common.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\usr\rtos_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>readme.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\usr\readme.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -29,6 +29,7 @@ extern "C" {
 #endif
     
 #include "c_lib.h"
+#include "rtos_common.h"
 
 /**
  * \name RTOS任务配置信息 

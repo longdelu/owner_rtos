@@ -119,7 +119,12 @@ typedef struct rtos_task_info {
     
     /** \brief 任务被挂起的次数   */    
     uint32_t suspend_cnt;
+        
+    /** \brief 堆栈的总容量   */
+    uint32_t stack_size;
     
+    /** \brief 堆栈空余量   */    
+    uint32_t stack_free;
    
 }rtos_task_info_t;
 

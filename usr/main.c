@@ -103,23 +103,12 @@ void idle_task_entry (void *p_arg)
 }
 
 /**
- * \brief 软件定时器
+ * \brief 任务状态信息
  */
-rtos_timer_t timer1;
-rtos_timer_t timer2;
-rtos_timer_t timer3;
-
-uint32_t timer1_flag = 0;
-uint32_t timer2_flag = 0;
-uint32_t timer3_flag = 0;
-
-static void __pfn_timer_func (void * arg)
-{
-    // 简单的将最低位取反，输出高低翻转的信号
-    uint32_t * ptrBit = (uint32_t *)arg;
-    *ptrBit ^= 0x01;
-}
-
+rtos_task_info_t task1_info;
+rtos_task_info_t task2_info;
+rtos_task_info_t task3_info;
+rtos_task_info_t task4_info;
 
 /**
  * \brief 当前任务入口函数
@@ -127,23 +116,10 @@ static void __pfn_timer_func (void * arg)
  */
 void first_task_entry (void *p_arg)
 {  
-    uint32_t timer_stop = 0;
     
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
     rtos_systick_init(10); 
     
-    // 定时器1：100个tick后启动，以后每10个tick启动一次
-    rtos_timer_init(&timer1, 100, 10, __pfn_timer_func, &timer1_flag, TIMER_CONFIG_TYPE_HARD);
-    rtos_timer_start(&timer1);
-    
-    // 定时器2：200个tick后启动，以后每20个tick启动一次
-    rtos_timer_init(&timer2, 200, 20, __pfn_timer_func, &timer2_flag, TIMER_CONFIG_TYPE_HARD); 
-    rtos_timer_start(&timer2);
-    
-    // 定时器3：300个tick后启动，启动之后关闭
-    rtos_timer_init(&timer3, 300, 0, __pfn_timer_func, &timer3_flag, TIMER_CONFIG_TYPE_HARD);  
-    rtos_timer_start(&timer3);    
-      
     for (; ;) {         
          
         *((uint32_t*) p_arg) = 1;
@@ -151,12 +127,7 @@ void first_task_entry (void *p_arg)
         *((uint32_t*) p_arg) = 0;
         rtos_sched_mdelay(1);  
 
-        /* 200个tick后，手动关闭定时器1 */ 
-        if (timer_stop == 0) {
-            rtos_sched_mdelay(200); 
-            rtos_timer_stop(&timer1);
-            timer_stop =1;
-        }            
+        rtos_task_info_get(p_current_task, &task1_info);        
              
     }
 }
@@ -179,6 +150,8 @@ void second_task_entry (void *p_arg)
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
         rtos_sched_mdelay(1);       
+        
+        rtos_task_info_get(p_current_task, &task2_info);  
  
     }
 }
@@ -194,7 +167,9 @@ void third_task_entry (void *p_arg)
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1);      
+        rtos_sched_mdelay(1);    
+
+        rtos_task_info_get(p_current_task, &task3_info);          
     }
 }
 
@@ -210,6 +185,7 @@ void forth_task_entry (void *p_arg)
         rtos_sched_mdelay(1); 
         *((uint32_t*) p_arg) = 0   ;
         rtos_sched_mdelay(1); 
+        rtos_task_info_get(p_current_task, &task4_info);  
                       
     }
 }

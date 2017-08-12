@@ -41,7 +41,7 @@ extern rtos_task_list_t task_table[TASK_COUNT];
 
 
 /**
- * \brief 任务初始化
+ * \brief 任务初始化，　task_stack_size表示字节的长度，sizeof算出去也是字节所点内存的长度
  */
 void rtos_task_init(rtos_task_t *task, 
                     void (*task_entry) (void *p_arg), 
@@ -121,6 +121,41 @@ void rtos_task_init(rtos_task_t *task,
      */    
     rtos_task_sched_ready(task);
 } 
+
+/**
+ * \brief 获取任务相关信息
+ */
+void rtos_task_info_get (rtos_task_t *p_task, rtos_task_info_t *p_task_info)
+{
+    uint32_t *p_stack_end = NULL;
+    
+    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
+    uint32_t status = rtos_task_critical_entry();
+      
+    p_task_info->delay_ticks = p_task->delay_ticks;         // 延时信息
+    p_task_info->task_prio   = p_task->prio;                // 任务优先级
+    p_task_info->task_state  = p_task->task_state;          // 任务状态
+    p_task_info->task_slice  = p_task->slice;               // 剩余时间片
+    p_task_info->suspend_cnt = p_task->suspend_cnt;         // 被挂起的次数
+    p_task_info->stack_size  = p_task->stack_size;          //  堆栈总容量
+    
+    /* 计算使用堆栈的使用量 */
+    p_task_info->stack_free  = 0;  
+    p_stack_end = p_task->stack_base;
+    
+    /* p_stack_end为32位地址指针，指针加1就加四个字节 */
+    while ((*p_stack_end++ == 0) && (p_stack_end <= p_task->stack_base + p_task->stack_size / sizeof(taskstack_t))) {
+        p_task_info->stack_free++;
+    }
+    
+    /* 转换成字节数 */
+    p_task_info->stack_free *= sizeof(taskstack_t); 
+
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+           
+}
+
 
 /**
  * \brief 将任务设置为就绪状态                                     
@@ -490,25 +525,6 @@ void rtos_task_del_self (void)
 }
 
 
-/**
- * \brief 获取任务相关信息
- */
-void rtos_task_info_get (rtos_task_t *p_task, rtos_task_info_t *p_task_info)
-{
-    
-    /* 进入临界区，以保护在整个任务调度与切换期间，不会因为发生中断导致currentTask和nextTask可能更改 */    
-    uint32_t status = rtos_task_critical_entry();
-      
-    p_task_info->delay_ticks = p_task->delay_ticks;         // 延时信息
-    p_task_info->task_prio   = p_task->prio;                // 任务优先级
-    p_task_info->task_state  = p_task->task_state;          // 任务状态
-    p_task_info->task_slice  = p_task->slice;               // 剩余时间片
-    p_task_info->suspend_cnt = p_task->suspend_cnt;         // 被挂起的次数
-
-    /* 退出临界区 */
-    rtos_task_critical_exit(status); 
-           
-}
 
      
     
