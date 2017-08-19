@@ -333,7 +333,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>ARMCM3</Define>
               <Undefine></Undefine>
               <IncludePath>..\usr;..\rtos</IncludePath>
             </VariousControls>

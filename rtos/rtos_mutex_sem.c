@@ -41,7 +41,7 @@ void rtos_mutex_sem_init (rtos_mutex_sem_t *p_mutex_sem)
 
 
 /**
- * \brief 等待互斥信号量
+ * \brief 等待互斥信号量，需要调用两次才会切走任务，初始化完成后，只能让一个任务使用，另一个申请这个互斥信号量的任务被挂起待待
  */  
 int32_t rtos_mutex_sem_wait (rtos_mutex_sem_t *p_mutex_sem, uint32_t wait_ticks)
 {

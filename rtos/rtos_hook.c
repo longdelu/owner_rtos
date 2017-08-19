@@ -22,6 +22,7 @@
  */
  
 #include "rtos_hook.h"
+#include "rtos_task_switch.h"
  
 #if RTOS_ENABLE_HOOK == 1
 
@@ -46,6 +47,7 @@ void rtos_hook_systick (void)
  */ 
 void rtos_hook_task_swtich (rtos_task_t *p_task_from, rtos_task_t *p_task_to)
 {
+    
 
 }
 

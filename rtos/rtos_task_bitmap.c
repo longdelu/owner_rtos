@@ -20,8 +20,9 @@
  * - 1.00 17-07-10  nwt, first implementation.
  * \endinternal
  */
- 
-#include "RTE_Components.h"             // Component selection
+#ifdef ARMCM3
+#include "RTE_Components.h"
+#endif  
 #include "rtos_task_bitmap.h"
 #include "arm.h"
 #include "c_lib.h"

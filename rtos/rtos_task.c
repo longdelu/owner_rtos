@@ -47,7 +47,8 @@ void rtos_task_init(rtos_task_t *task,
                     void *p_arg, 
                     uint32_t task_prio, 
                     uint32_t *task_stack,
-                    uint32_t task_stack_size)
+                    uint32_t task_stack_size,
+                    uint32_t opts)
 {
     uint32_t * p_task_stack_top = NULL;
     
@@ -60,6 +61,36 @@ void rtos_task_init(rtos_task_t *task,
     
     p_task_stack_top =  task_stack +  task_stack_size / sizeof(taskstack_t);
     
+#if (RTOS_CPU_ARM_FP_EN == 1)       
+    /* Align the stack to 8-bytes.                            */                                                               
+    p_task_stack_top = (uint32_t * )((uint32_t)(p_task_stack_top) & 0xFFFFFFF8);
+#endif
+    
+#if (RTOS_CPU_ARM_FP_EN == 1)     
+    if ((opts & RTOS_TASK_OPT_SAVE_FP) != 0) {   \
+
+        /* Initialize S0-S31 floating point registers             */        
+        *--p_task_stack_top = (unsigned long)0x00000000u;               /* No Name Register, 在FPSCR寄存器上面一定会留个空的寄存器位置 */
+                                                                        
+        *--p_task_stack_top = (unsigned long)0x00001000u;               /* FPSCR                                                       */
+        *--p_task_stack_top = (unsigned long)0x0000000Fu;               /* S15                                                         */
+        *--p_task_stack_top = (unsigned long)0x0000000Eu;               /* S14                                                         */
+        *--p_task_stack_top = (unsigned long)0x0000000Du;               /* S13                                                         */
+        *--p_task_stack_top = (unsigned long)0x0000000Cu;               /* S12                                                         */
+        *--p_task_stack_top = (unsigned long)0x0000000Bu;               /* S11                                                         */
+        *--p_task_stack_top = (unsigned long)0x0000000Au;               /* S10                                                         */
+        *--p_task_stack_top = (unsigned long)0x00000009u;               /* S9                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000008u;               /* S8                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000007u;               /* S7                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000006u;               /* S6                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000005u;               /* S5                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000004u;               /* S4                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000003u;               /* S3                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000002u;               /* S2                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000001u;               /* S1                                                          */
+        *--p_task_stack_top = (unsigned long)0x00000000u;               /* S0                                                          */ 
+    }        
+#endif    
     
     /*
      * 注意以下两点：
@@ -75,6 +106,30 @@ void rtos_task_init(rtos_task_t *task,
     *(--p_task_stack_top) = (unsigned long)0x2;                    // R2, 未用
     *(--p_task_stack_top) = (unsigned long)0x1;                    // R1, 未用
     *(--p_task_stack_top) = (unsigned long)p_arg;                  // R0 = param, 传给任务的入口函数
+    
+#if (RTOS_CPU_ARM_FP_EN == 1)     
+    if ((opts & RTOS_TASK_OPT_SAVE_FP) != 0) {
+        *--p_task_stack_top = (unsigned long)0x0000001Fu;                        /* S31                                                    */
+        *--p_task_stack_top = (unsigned long)0x0000001Eu;                        /* S30                                                    */
+        *--p_task_stack_top = (unsigned long)0x0000001Du;                        /* S29                                                    */
+        *--p_task_stack_top = (unsigned long)0x0000001Cu;                        /* S28                                                    */
+        *--p_task_stack_top = (unsigned long)0x0000001Bu;                        /* S27                                                    */
+        *--p_task_stack_top = (unsigned long)0x0000001Au;                        /* S26                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000019u;                        /* S25                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000018u;                        /* S24                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000017u;                        /* S23                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000016u;                        /* S22                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000015u;                        /* S21                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000014u;                        /* S20                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000013u;                        /* S19                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000012u;                        /* S18                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000011u;                        /* S17                                                    */
+        *--p_task_stack_top = (unsigned long)0x00000010u;                        /* S16                                                    */
+
+
+    }
+#endif       
+    
     *(--p_task_stack_top) = (unsigned long)0x11;                   // R11, 未用
     *(--p_task_stack_top) = (unsigned long)0x10;                   // R10, 未用
     *(--p_task_stack_top) = (unsigned long)0x9;                    // R9, 未用
@@ -84,7 +139,8 @@ void rtos_task_init(rtos_task_t *task,
     *(--p_task_stack_top) = (unsigned long)0x5;                    // R5, 未用
     *(--p_task_stack_top) = (unsigned long)0x4;                    // R4, 未用
     
-    
+ 
+      
     task->task_stack_top = p_task_stack_top;                       // 保存最终的值,为栈顶的地址
 
     task->delay_ticks    = 0;                                      // 任务延时间片
@@ -113,6 +169,8 @@ void rtos_task_init(rtos_task_t *task,
     /* 初始化事件标记组 */
     task->wait_flags_grp_type = 0;                                   
     task->event_flags_grp = 0;
+    
+    task->task_opt = opts;
 
     /*
      * \note 调用该函数，一定要保证该优先级的任务头结点已经有正确的指向
@@ -316,7 +374,7 @@ void rtos_task_wake_up_delayed_list (rtos_task_t *p_task)
 {
     rtos_task_list_remove(&rtos_task_delayedlist, &p_task->delay_node);
 
-    p_task->task_state &= ~RTOS_TASK_STATE_REDDY;    
+    p_task->task_state &= ~RTOS_TASK_STATE_DELAYED;    
            
 }
 

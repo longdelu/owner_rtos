@@ -37,10 +37,12 @@ int g_task_flag3 = 0;
 int g_task_flag4 = 0; 
 
 /** \brief 任务堆栈 */
-taskstack_t first_task_stack_buf[TASK_STACK_SIZE];
-taskstack_t second_task_stack_buf[TASK_STACK_SIZE];
-taskstack_t third_task_stack_buf[TASK_STACK_SIZE];
-taskstack_t forth_task_stack_buf[TASK_STACK_SIZE];
+
+ /* 按8字节对齐 */
+__align(8) taskstack_t first_task_stack_buf[TASK_STACK_SIZE];
+__align(8) taskstack_t second_task_stack_buf[TASK_STACK_SIZE];
+__align(8) taskstack_t third_task_stack_buf[TASK_STACK_SIZE];
+__align(8) taskstack_t forth_task_stack_buf[TASK_STACK_SIZE];
 
 /** \brief 当前任务结构体 */
 rtos_task_t first_task;
@@ -73,9 +75,9 @@ void first_task_entry (void *p_arg)
     for (; ;) {         
          
         *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(1); 
+        rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0;
-        rtos_sched_mdelay(1);      
+        rtos_sched_mdelay(10);      
              
     }
 }
@@ -93,9 +95,9 @@ void second_task_entry (void *p_arg)
          */        
        
         *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(1); 
+        rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1);       
+        rtos_sched_mdelay(10);       
  
     }
 }
@@ -109,9 +111,9 @@ void third_task_entry (void *p_arg)
     for (; ;) {
                     
         *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(1); 
+        rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1);    
+        rtos_sched_mdelay(10);    
          
     }
 }
@@ -125,9 +127,9 @@ void forth_task_entry (void *p_arg)
     for (; ;) {
                         
         *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(1); 
+        rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(1); 
+        rtos_sched_mdelay(10); 
                       
     }
 }
@@ -137,10 +139,10 @@ void forth_task_entry (void *p_arg)
  */
 void  rtos_task_app_init (void) 
 {
-    rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
-    rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
-    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
-    rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf));    
+    rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf),RTOS_TASK_OPT_SAVE_FP); 
+    rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);
+    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);
+    rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);    
     
 }    
 

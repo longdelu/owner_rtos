@@ -476,6 +476,7 @@ int dlist_add_tail(dlist_head_t *p_head, dlist_node_t *p_node)
 {
     
     /* 头结点实例没有初始化 */
+    /* (fix)bug 第4个任务的值进到这里的时候，delaylist延时列表的值突然间被改变了 */
     if (p_head == NULL || p_node == NULL) {
         
         return -RTOS_EINVAILD;

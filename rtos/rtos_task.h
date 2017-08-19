@@ -28,7 +28,6 @@ extern "C" {
 #define RTOS_TASK_STATE_RED_DEL    (1UL << 3)  
 
 
-
 /** \brief 任务处于等待事件状态 */
 #define RTOS_TASK_EVENT_WAIT_MASK  (0xFF << 16)
 
@@ -37,6 +36,14 @@ extern "C" {
     
 /** \brief Cortex-M的堆栈单元类型：堆栈单元的大小为32位，所以使用uint32_t */
 typedef uint32_t taskstack_t;
+
+
+#define  RTOS_TASK_OPT_NONE           (0x0000u)  /**< \brief No option selected                                 */
+#define  RTOS_TASK_OPT_STK_CHK        (0x0001u)  /**< \brief Enable stack checking for the task                 */
+#define  RTOS_TASK_OPT_STK_CLR        (0x0002u)  /**< \brief Clear the stack when the task is create            */
+#define  RTOS_TASK_OPT_SAVE_FP        (0x0004u)  /**< \brief Save the contents of any floating-point registers  */
+#define  RTOS_TASK_OPT_NO_TLS         (0x0008u)  /**< \brief Specifies the task DOES NOT require TLS support    */
+
 
 
 /** \brief 事件控制块前置声明 */
@@ -100,6 +107,9 @@ typedef struct rtos_task {
 
     /** \brief 等待的事件标记组的标志 */
     uint32_t event_flags_grp;    
+    
+    /** \brief 任务可选参数，主要用于确定硬件浮点  */
+    uint32_t task_opt;
 
             
 }rtos_task_t;
@@ -156,15 +166,17 @@ extern rtos_task_bitmap_t task_priobitmap;
  * \param[in] task_prio: 任务的优先级
  * \param[in] task_stack: 任务堆栈的指针
  * \param[in] task_stack_size: 任务堆栈的大小,以字节为单位
+ * \param[in] opts: 任务可选参数，值为 RTOS_TASK_OPT_* ；这一类型的宏，（# RTOS_TASK_OPT_STK_CLR）
  *
  * \return    无
  */
-void rtos_task_init(rtos_task_t * task, 
+void rtos_task_init(rtos_task_t *task, 
                     void (*task_entry) (void *p_arg), 
                     void *p_arg, 
                     uint32_t task_prio, 
                     uint32_t *task_stack,
-                    uint32_t task_stack_size);
+                    uint32_t task_stack_size,
+                    uint32_t opts);
                     
                     
 /**

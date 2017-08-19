@@ -147,7 +147,7 @@ int rtos_init (void)
 #endif
 
     /* 空闲任务初始化 */
-    rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf));
+    rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);
 
     return RTOS_OK;
 }
