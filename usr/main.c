@@ -96,7 +96,7 @@ void second_task_entry (void *p_arg)
        
         *((uint32_t*) p_arg) = 1;
         rtos_sched_mdelay(10); 
-        *((uint32_t*) p_arg) = 0   ;
+        *((uint32_t*) p_arg) = 0;
         rtos_sched_mdelay(10);       
  
     }
@@ -154,6 +154,8 @@ int main (void)
     /* 组优先级有4位，次优先级也有4位 */
     NVIC_SetPriorityGrouping(0x03);
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(0x03,0x0F,0x0F));
+    
+    
    
     /* RTOS初始化 */
     rtos_init();

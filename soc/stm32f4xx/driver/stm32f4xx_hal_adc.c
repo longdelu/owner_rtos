@@ -1040,7 +1040,7 @@ __weak void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
   */
   
 /** @defgroup ADC_Exported_Functions_Group3 Peripheral Control functions
- *  @brief   	Peripheral Control functions 
+ *  @brief       Peripheral Control functions 
  *
 @verbatim   
  ===============================================================================

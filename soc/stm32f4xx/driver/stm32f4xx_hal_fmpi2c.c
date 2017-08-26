@@ -597,11 +597,11 @@ HAL_StatusTypeDef HAL_FMPI2C_Master_Transmit(FMPI2C_HandleTypeDef *hfmpi2c, uint
     
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
 
-    hfmpi2c->State = HAL_FMPI2C_STATE_READY; 	  
+    hfmpi2c->State = HAL_FMPI2C_STATE_READY;       
     
     /* Process Unlocked */
     __HAL_UNLOCK(hfmpi2c);
@@ -711,11 +711,11 @@ HAL_StatusTypeDef HAL_FMPI2C_Master_Receive(FMPI2C_HandleTypeDef *hfmpi2c, uint1
     
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
     
-    hfmpi2c->State = HAL_FMPI2C_STATE_READY; 	  
+    hfmpi2c->State = HAL_FMPI2C_STATE_READY;       
     
     /* Process Unlocked */
     __HAL_UNLOCK(hfmpi2c);
@@ -820,9 +820,9 @@ HAL_StatusTypeDef HAL_FMPI2C_Slave_Transmit(FMPI2C_HandleTypeDef *hfmpi2c, uint8
 
       if(hfmpi2c->ErrorCode == HAL_FMPI2C_ERROR_AF)
       {
-	/* Normal use case for Transmitter mode */
-	/* A NACK is generated to confirm the end of transfer */
-	hfmpi2c->ErrorCode = HAL_FMPI2C_ERROR_NONE;
+    /* Normal use case for Transmitter mode */
+    /* A NACK is generated to confirm the end of transfer */
+    hfmpi2c->ErrorCode = HAL_FMPI2C_ERROR_NONE;
       }
       else
       {
@@ -1666,11 +1666,11 @@ HAL_StatusTypeDef HAL_FMPI2C_Mem_Write(FMPI2C_HandleTypeDef *hfmpi2c, uint16_t D
     
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
 
-    hfmpi2c->State = HAL_FMPI2C_STATE_READY; 	  
+    hfmpi2c->State = HAL_FMPI2C_STATE_READY;       
     
     /* Process Unlocked */
     __HAL_UNLOCK(hfmpi2c);
@@ -1804,7 +1804,7 @@ HAL_StatusTypeDef HAL_FMPI2C_Mem_Read(FMPI2C_HandleTypeDef *hfmpi2c, uint16_t De
 
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
     
@@ -2252,8 +2252,8 @@ HAL_StatusTypeDef HAL_FMPI2C_IsDeviceReady(FMPI2C_HandleTypeDef *hfmpi2c, uint16
       tickstart = HAL_GetTick();
       while((__HAL_FMPI2C_GET_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF) == RESET) && (__HAL_FMPI2C_GET_FLAG(hfmpi2c, FMPI2C_FLAG_AF) == RESET) && (hfmpi2c->State != HAL_FMPI2C_STATE_TIMEOUT))
       {
-      	if(Timeout != HAL_MAX_DELAY)
-      	{
+          if(Timeout != HAL_MAX_DELAY)
+          {
           if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
           {
             /* Device is ready */
@@ -2586,7 +2586,7 @@ static HAL_StatusTypeDef FMPI2C_MasterTransmit_ISR(FMPI2C_HandleTypeDef *hfmpi2c
     /* Write data to TXDR */
     hfmpi2c->Instance->TXDR = (*hfmpi2c->pBuffPtr++);
     hfmpi2c->XferSize--;
-    hfmpi2c->XferCount--;	
+    hfmpi2c->XferCount--;    
   }
   else if(__HAL_FMPI2C_GET_FLAG(hfmpi2c, FMPI2C_FLAG_TCR) == SET)
   {
@@ -3192,7 +3192,7 @@ static void FMPI2C_DMAMasterTransmitCplt(DMA_HandleTypeDef *hdma)
   
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
 
@@ -3406,7 +3406,7 @@ static void FMPI2C_DMAMasterReceiveCplt(DMA_HandleTypeDef *hdma)
   
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
   
@@ -3614,7 +3614,7 @@ static void FMPI2C_DMAMemTransmitCplt(DMA_HandleTypeDef *hdma)
   
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
 
@@ -3776,7 +3776,7 @@ static void FMPI2C_DMAMemReceiveCplt(DMA_HandleTypeDef *hdma)
   
     /* Clear STOP Flag */
     __HAL_FMPI2C_CLEAR_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF);
-  	
+      
     /* Clear Configuration Register 2 */
     __HAL_FMPI2C_RESET_CR2(hfmpi2c);
   
@@ -3889,7 +3889,7 @@ static HAL_StatusTypeDef FMPI2C_WaitOnTXISFlagUntilTimeout(FMPI2C_HandleTypeDef 
     {
       return HAL_ERROR;
     }
-		
+        
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
@@ -3927,7 +3927,7 @@ static HAL_StatusTypeDef FMPI2C_WaitOnSTOPFlagUntilTimeout(FMPI2C_HandleTypeDef 
     {
       return HAL_ERROR;
     }
-		
+        
     /* Check for the Timeout */
     if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
     {
@@ -3974,7 +3974,7 @@ static HAL_StatusTypeDef FMPI2C_WaitOnRXNEFlagUntilTimeout(FMPI2C_HandleTypeDef 
 
       return HAL_ERROR;
     }
-		
+        
     /* Check for the Timeout */
     if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
     {
@@ -4016,7 +4016,7 @@ static HAL_StatusTypeDef FMPI2C_IsAcknowledgeFailed(FMPI2C_HandleTypeDef *hfmpi2
         hfmpi2c->Instance->CR2 |= FMPI2C_CR2_STOP;
       }
     }
-		
+        
     /* Wait until STOP Flag is reset */
     /* AutoEnd should be initiate after AF */
     while(__HAL_FMPI2C_GET_FLAG(hfmpi2c, FMPI2C_FLAG_STOPF) == RESET)

@@ -50,6 +50,8 @@
 /**
   * @brief This is the list of modules to be used in the HAL driver 
   */
+#ifdef HAL_CLK_INIT_ENABLED 
+#define HAL_BIT_BAND_ENABLED
 #define HAL_MODULE_ENABLED
 #define HAL_ADC_MODULE_ENABLED
 #define HAL_CAN_MODULE_ENABLED
@@ -376,6 +378,14 @@
 #ifdef HAL_HCD_MODULE_ENABLED
  #include "stm32f4xx_hal_hcd.h"
 #endif /* HAL_HCD_MODULE_ENABLED */
+
+#ifdef HAL_BIT_BAND_ENABLED
+ #include "stm32f4xx_hal_bit_band.h"
+#endif
+
+#ifdef HAL_CLK_INIT_ENABLED
+ //#include "stm32f4xx_hal_clk_init.h"
+#endif
    
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT

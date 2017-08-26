@@ -1256,7 +1256,7 @@ HAL_StatusTypeDef I2S_Transmit_IT(I2S_HandleTypeDef *hi2s)
     /* Transmit data */
     hi2s->Instance->DR = (*hi2s->pTxBuffPtr++);
 
-    hi2s->TxXferCount--;	
+    hi2s->TxXferCount--;    
     
     if(hi2s->TxXferCount == 0)
     {
