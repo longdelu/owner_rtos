@@ -116,6 +116,14 @@ void rtos_cpu_use_check_test (rtos_pfn_no_arg_t p_app_task_init);
 
 
 /**
+ * \brief rtos运行状态检查
+ * \param[in]:无
+ * \return 1: 操作系统已经开始运行; 0: 操作系统未开始运行
+ */
+uint8_t rtos_running_check (void); 
+
+
+/**
  * \brief rtos操作系统启动函数
  * \param[in]:无
  * \return 无

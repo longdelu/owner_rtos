@@ -29,6 +29,8 @@
 #include "rtos_soft_timer.h"
 #include "rtos_cpu_use.h"
 #include "rtos_hook.h"
+#include "rtos_task_delay.h"
+#include "rtos_init.h"
 
 
 /** \brief  任务延时队列 */
@@ -37,9 +39,16 @@ extern rtos_task_list_t rtos_task_delayedlist;
 /** \brief 同一个优先级任务的链表头结点 */
 extern rtos_task_list_t task_table[TASK_COUNT];
 
+uint32_t rtos_systick = 0;      /**< \brief 系统滴答计数值 */
 
-/** \brief 系统滴答计数值 */
-uint32_t rtos_systick = 0;
+uint32_t __g_us_ticks = 0;      /**< \brief 当延时1us的计数值   */
+uint32_t __g_ms_ticks = 0;      /**< \brief 当延时1ms的计数值   */
+
+uint32_t __g_reload = 0;        /**< \brief systick重载计数值   */  
+
+uint32_t __g_us_max = 0;        /**< \brief 延时的最大us数      */
+uint32_t __g_ms_max = 0;        /**< \brief 延时的最大ms数      */
+
 
   
 /**
@@ -161,19 +170,127 @@ static void __rtos_task_delay_tick_handler (void)
     /* 退出临界区保护 */
     rtos_task_critical_exit(status);    
 }
+
  
 /**
  * \brief  操作系统滴答时钟初始化函数
  */
-void rtos_systick_init (uint32_t ms)
+void rtos_systick_init (void)
 {
-    SysTick->LOAD  = ms * SystemCoreClock / 1000 - 1; 
+   uint32_t sysclk = SystemCoreClock;
+    
+    __g_us_ticks =  sysclk / 1000000;
+    __g_ms_ticks =  sysclk / 1000;
+
+    __g_us_max   = (uint64_t)0xFFFFFF * (uint64_t)1000000 / sysclk;
+
+    __g_ms_max   = __g_us_max / 1000; 
+    
+    __g_reload   = RTOS_SYSTICK_PERIOD * __g_ms_ticks;      
+    
+#ifdef ARMCM3 
+
+    SysTick->LOAD  = __g_reload 
+#endif
+
+#ifdef STM32F429xx 
+    /* SysTick频率为HCLK */
+    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+    if (RTOS_SYSTICK_PERIOD >  __g_ms_max) {
+        while(1) {
+            ;
+        }            
+    } else {
+        
+        SysTick->LOAD  = __g_reload;
+    }
+     
+#endif
+    
     NVIC_SetPriority (SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
     SysTick->VAL   = 0;                           
     SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
                      SysTick_CTRL_TICKINT_Msk   |
                      SysTick_CTRL_ENABLE_Msk; 
 }
+
+/** 
+ * \brief 微秒级别延时函数
+ */
+void rtos_udelay (uint32_t nus)
+{
+    uint32_t ticks;
+    uint32_t told = 0, tnow = 0,tcnt=0;
+    
+    ticks = nus * __g_us_ticks;     /* 需要的节拍数 */ 
+    
+    if (rtos_running_check()) {
+       /* 调度锁关闭，禁止任务调度, 因为此时发生调度的话就跑去其它任务去了 */
+       rtos_task_sched_disable();       
+    }    
+    
+    /* 刚进入时的计数器值 */
+    told = SysTick->VAL;
+    
+    while (1) {
+        /* 当前的计数器值 */
+        tnow = SysTick->VAL;
+        
+        if (tnow != told) {
+            
+            if (tnow < told) {
+                tcnt+=told-tnow;    /* 这里注意一下SYSTICK是一个递减的计数器就可以了.*/
+            } else {
+                /* 当前滴答已经从0回到了重载计数值重新开始计数 */
+                tcnt += __g_reload - tnow + told;
+            }
+            
+            told=tnow;
+            
+            if(tcnt >= ticks) { 
+                break; /* 时间超过/等于要延迟的时间,则退出. */
+            }                
+                   
+        }
+                   
+    }
+
+    if (rtos_running_check()) {
+        /* 调度锁打开，允许任务调度 */
+        rtos_task_sched_enable();      
+    }    
+}
+
+/**
+ * \brief  操作系统ms延时函数实现
+ */
+void rtos_mdelay (int32_t ms)
+{ 
+    uint32_t i = 0;
+    uint32_t nms = 0;
+    
+    if (rtos_running_check()) {
+        /* 延时的时间大于OS的最少时间周期 */
+        if (ms > RTOS_SYSTICK_PERIOD) {            
+            rtos_sched_mdelay(ms / RTOS_SYSTICK_PERIOD);            
+        }      
+        /* OS 已经无法提供这么小的延时了,采用普通方式延时 */
+        nms %= RTOS_SYSTICK_PERIOD; 
+        
+        for (i = 0; i < nms; i++) {           
+             rtos_udelay(1000);
+        }          
+             
+    } else {
+        
+        for (i = 0; i < ms; i++) {           
+             rtos_udelay(1000);
+        }            
+        
+    } 
+}
+
+
 
 /**
  * \brief  操作系统滴答中断处理函数

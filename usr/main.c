@@ -69,7 +69,7 @@ void first_task_entry (void *p_arg)
 /* CPU不测量占有率的时候 */    
 #if RTOS_ENABLE_CPU_USE_CHECK == 0    
     /* 确保任务被调度起来后，再初始化系统节拍周期为10ms，否则会出现问题 */
-    rtos_systick_init(RTOS_SYSTICK_PERIOD); 
+    rtos_systick_init(); 
 #endif
     
     for (; ;) {         
@@ -154,9 +154,11 @@ int main (void)
     /* 组优先级有4位，次优先级也有4位 */
     NVIC_SetPriorityGrouping(0x03);
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(0x03,0x0F,0x0F));
+
+    /* 时钟初始化 */
+    stm32f4xx_hal_clk_init(&clk_dev, &clk_info);
     
     
-   
     /* RTOS初始化 */
     rtos_init();
 

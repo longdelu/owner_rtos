@@ -53,9 +53,11 @@ rtos_task_list_t task_table[TASK_COUNT];
 taskstack_t idle_task_stack_buf[RTOS_IDLE_TASK_STACK_SIZE];
 
 /* CPU占有率测量的时候,任务初始化要放在空闲任务时时面执行 */    
-
 /** \brief 指向用户应用的函数指针 */
 rtos_pfn_no_arg_t pfn_app_task_init;  
+
+/** \brief rtos运行状态标记  */
+static uint8_t __rtos_running_status = 0;
  
 
 
@@ -161,6 +163,14 @@ void rtos_cpu_use_check_test (rtos_pfn_no_arg_t p_app_task_init)
      pfn_app_task_init  =  p_app_task_init;      
 }
 
+/**
+ * \brief rtos运行状态检查
+ */
+uint8_t rtos_running_check (void) 
+{  
+    return __rtos_running_status ;          
+}
+
 
 
 /**
@@ -168,6 +178,10 @@ void rtos_cpu_use_check_test (rtos_pfn_no_arg_t p_app_task_init)
  */
 void rtos_start (void)
 {
+    /* 表明RTOS已经启动了 */
+    __rtos_running_status = 1;
+    
+    
     /* 自动查找最高优先级的任务运行 */
     p_next_task =  rtos_task_highest_ready();
     

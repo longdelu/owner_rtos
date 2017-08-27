@@ -63,10 +63,11 @@ __asm void PendSV_Handler (void)
      * 先把RO的寄存器的值递减后，再把S0-S15,FPSCR寄存器里面的内容放到以RO的值为地址的内存单元里面, 
      * 即PSP指向的用户堆栈里面. 注：在使用FPU的时候硬件自动入栈S0-S15,FPSCR 
      */ 
-     
+#ifdef STM32F429xx     
     TST      R14,  #0X10      /* 判断是否使用硬件FPU */
     IT       EQ
     VSTMDBEQ   R0!, {S16-S31} /* 如果使用，则压栈S16-S31 */
+#endif
     
     
     /* 先把RO的寄存器的值递减后，再把R11-R4寄存器里面的内容放到以RO的值为地址的内存单元里面, 即PSP指向的用户堆栈里面， 最后向RO重新写入当前的值R0的值 */
@@ -94,12 +95,13 @@ PendSVHandler_nosave
     
     /* 把R0指向的地址的内存数据恢复R4-R11中,每放一个R0地址就加1  */
     LDMIA    R0!, {R4-R11}   // 先恢复 R4， 再恢复R11 
-  
+
+#ifdef STM32F429xx     
     TST      R14,  #0X10      /* 判断是否使用硬件FPU */
     IT       EQ  
       
     VLDMIAEQ  R0!, {S16-S31}  /* 如果使用，则出栈恢复S16-S31 */
-   
+#endif   
    
     /* 硬件自动恢复 R0 ,R1, R2, R3, LR(R14), PC(R15), XPSR */
    
