@@ -21,6 +21,7 @@
  * \endinternal
  */
 #include "rtos_init.h"
+#include "microlib_adapter.h"
 
 #define   TASK_STACK_SIZE  1024  
 
@@ -150,13 +151,23 @@ void  rtos_task_app_init (void)
  * \brief 入口函数
  */
 int main (void)
-{       
+{  
+    /* UART句柄 */
+    UART_HandleTypeDef UART1_Handler;
+    
     /* 组优先级有4位，次优先级也有4位 */
     NVIC_SetPriorityGrouping(0x03);
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(0x03,0x0F,0x0F));
 
     /* 时钟初始化 */
     stm32f4xx_hal_clk_init(&clk_dev, &clk_info);
+    
+    /* 串口打印初始化 */
+    stm32f4xx_uart_init(&UART1_Handler, USART1, 115200);        
+    microlib_adapter_init(NULL, &UART1_Handler);
+    
+    /* led初始化 */
+    stm32f4xx_led_init(GPIO_PIN_0 | GPIO_PIN_1, GPIOB); 
     
     
     /* RTOS初始化 */
@@ -176,7 +187,9 @@ int main (void)
     /* CPU占有率测试初始化 */
     rtos_cpu_use_init();
     
-#endif    
+#endif
+
+    printf("rtos init complete\r\n");
     
     /* 启动操作系统, 自动查找最高优先级的任务运行,这个函数永远不会返回 */
     rtos_start();
