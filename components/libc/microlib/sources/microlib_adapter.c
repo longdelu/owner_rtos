@@ -51,7 +51,7 @@ int fputc (int ch, FILE *f)
 { 
     UART_HandleTypeDef *p_uart_handler = (UART_HandleTypeDef *)__g_adapter.p_cookie;        
     while ((p_uart_handler->Instance->SR & 0x40) == 0);        /* 等待发送数据完成           */
-    p_uart_handler->Instance->DR = ch;                         /* 发送数据                   */
+    p_uart_handler->Instance->DR = (uint8_t)ch;                         /* 发送数据                   */
     return ch;
 }
 

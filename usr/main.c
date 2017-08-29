@@ -128,8 +128,10 @@ void forth_task_entry (void *p_arg)
     for (; ;) {
                         
         *((uint32_t*) p_arg) = 1;
+        stm32f4xx_led_on(GPIO_PIN_0,GPIOB); 
         rtos_sched_mdelay(10); 
         *((uint32_t*) p_arg) = 0   ;
+        stm32f4xx_led_off(GPIO_PIN_0,GPIOB); 
         rtos_sched_mdelay(10); 
                       
     }
@@ -145,16 +147,17 @@ void  rtos_task_app_init (void)
     rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);
     rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);    
     
-}    
+}
+
+ /* UART句柄 */
+UART_HandleTypeDef UART1_Handler;
 
 /**
  * \brief 入口函数
  */
 int main (void)
 {  
-    /* UART句柄 */
-    UART_HandleTypeDef UART1_Handler;
-    
+   
     /* 组优先级有4位，次优先级也有4位 */
     NVIC_SetPriorityGrouping(0x03);
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(0x03,0x0F,0x0F));
@@ -165,10 +168,13 @@ int main (void)
     /* 串口打印初始化 */
     stm32f4xx_uart_init(&UART1_Handler, USART1, 115200);        
     microlib_adapter_init(NULL, &UART1_Handler);
+   
     
     /* led初始化 */
-    stm32f4xx_led_init(GPIO_PIN_0 | GPIO_PIN_1, GPIOB); 
+    stm32f4xx_led_init(GPIO_PIN_0, GPIOB, 1); 
+    stm32f4xx_led_init(GPIO_PIN_1, GPIOB, 1); 
     
+ 
     
     /* RTOS初始化 */
     rtos_init();
@@ -193,6 +199,7 @@ int main (void)
     
     /* 启动操作系统, 自动查找最高优先级的任务运行,这个函数永远不会返回 */
     rtos_start();
+
     
     return RTOS_OK;    
 }

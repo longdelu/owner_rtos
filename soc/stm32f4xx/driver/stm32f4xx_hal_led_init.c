@@ -24,6 +24,8 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h" 
 
+static uint8_t __low_active_state = 0;
+
 static void __gpio_port_enable (GPIO_TypeDef *p_gpio_port) 
 {
     uint32_t port_base = (uint32_t)p_gpio_port;
@@ -85,11 +87,22 @@ static void __gpio_port_enable (GPIO_TypeDef *p_gpio_port)
   * @brief  This function Initializes led
   * @retval None
   */
-void stm32f4xx_led_init(uint32_t led_pin, GPIO_TypeDef *p_gpio_port)
+void stm32f4xx_led_init(uint32_t led_pin, GPIO_TypeDef *p_gpio_port, uint8_t active_low)
 { 
-      GPIO_InitTypeDef GPIO_Initure;
+    GPIO_InitTypeDef GPIO_Initure;
     
     __gpio_port_enable(p_gpio_port);        //开启对应端口时钟
+    
+    __low_active_state = active_low;
+    
+    
+    /* 默认初始化后灯灭 */
+    if (active_low == 1) {
+        HAL_GPIO_WritePin(GPIOB,led_pin,GPIO_PIN_SET);  
+    } else {
+        HAL_GPIO_WritePin(GPIOB,led_pin,GPIO_PIN_RESET);  
+         
+    }
     
     GPIO_Initure.Pin=led_pin;               //LED管脚
     GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  //推挽输出
@@ -97,6 +110,41 @@ void stm32f4xx_led_init(uint32_t led_pin, GPIO_TypeDef *p_gpio_port)
     GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //高速
     HAL_GPIO_Init(p_gpio_port,&GPIO_Initure);   
 }
+
+
+/**
+  * @brief  light on led
+  */     
+void stm32f4xx_led_on(uint32_t led_pin, GPIO_TypeDef *p_gpio_por)
+{
+     if (__low_active_state == 1) {
+         HAL_GPIO_WritePin(GPIOB,led_pin,GPIO_PIN_RESET);           
+                 
+     } else {
+         HAL_GPIO_WritePin(GPIOB,led_pin,GPIO_PIN_SET); 
+     }
+}    
+
+/**
+  * @brief  light off led
+  */  
+void stm32f4xx_led_off(uint32_t led_pin, GPIO_TypeDef *p_gpio_port)
+{
+     if (__low_active_state == 1) {
+         HAL_GPIO_WritePin(GPIOB,led_pin,GPIO_PIN_SET);           
+                 
+     } else {
+         HAL_GPIO_WritePin(GPIOB,led_pin,GPIO_PIN_RESET); 
+     }
+}    
+
+/**
+  * @brief  led state toggle
+  */  
+void stm32f4xx_led_toggle(uint32_t led_pin, GPIO_TypeDef *p_gpio_port)
+{
+     HAL_GPIO_TogglePin(p_gpio_port,led_pin);      
+}    
  
  
  
