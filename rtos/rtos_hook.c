@@ -51,14 +51,13 @@ void rtos_hook_task_swtich (rtos_task_t *p_task_from, rtos_task_t *p_task_to)
 
 }
 
-
 /**
  * \brief 任务初始化的Hooks
  */ 
 void rtos_hook_task_init (rtos_task_t *p_task)
 {
 
-}
+}   
 
 #endif
  

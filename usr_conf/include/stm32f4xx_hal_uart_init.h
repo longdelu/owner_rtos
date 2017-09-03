@@ -30,6 +30,10 @@
   * @retval None
   */
 void stm32f4xx_uart_init(UART_HandleTypeDef *p_uart_handler, USART_TypeDef *p_uart_base, uint32_t bound_rate);
+     
+     
+/* UART¾ä±ú */
+extern UART_HandleTypeDef UART1_Handler;
 
 
 #ifdef __cplusplus

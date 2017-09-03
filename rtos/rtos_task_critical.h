@@ -69,6 +69,24 @@ void rtos_task_sched_enable (void);
  */
 uint8_t rtos_task_schedlock_status (void);
 
+/**
+ * \brief  进入中断isr,递增嵌套次数
+ * \param[in] 无
+ * \return    无
+ * \note 与 rtos_interupt_exit 配对使用
+ */
+void  rtos_interupt_enter (void);
+
+
+
+/**
+ * \brief  退出中断isr,递减嵌套次数
+ * \param[in] 无
+ * \return    无
+ * \note 与rtos_interupt_enter配对使用
+ */
+void  rtos_interupt_exit (void);
+
 
 
 

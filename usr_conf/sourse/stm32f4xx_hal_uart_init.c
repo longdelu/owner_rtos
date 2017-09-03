@@ -24,6 +24,10 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 
+/* UART¾ä±ú */
+UART_HandleTypeDef UART1_Handler;
+
+
 
 
 /**

@@ -90,7 +90,7 @@ static void __rtos_task_delay_tick_handler (void)
         
         p_task = RTOS_CONTAINER_OF(p_tmp, rtos_task_t, delay_node);
         
-        if (--p_task->delay_ticks == 0) {
+        if (--p_task->delay_ticks <= 0) {
             
              /* 如果任务还处于等待事件的状态，则将其从事件等待队列中唤醒 */
             if (p_task->p_event) {
@@ -302,40 +302,48 @@ void rtos_mdelay (int32_t ms)
 void SysTick_Handler (void) 
 {  
     /* 当操作系统运行起来时才执行调度 */
-    if (rtos_running_check()) {
-        /* 临界区保户 */
-        uint32_t status = rtos_task_critical_entry();
-     
-        __rtos_task_delay_tick_handler();    
+    if (rtos_running_check() == 0) {
+        
+        return;
+        
+    }
+    /* 临界区保户 */
+    uint32_t status = rtos_task_critical_entry();
     
-        /* 滴答计数 */
-        rtos_systick++;   
+#ifdef STM32F429xx    
+    /* stm32f4xx tick */
+    HAL_IncTick();
+#endif
+     
+    __rtos_task_delay_tick_handler();    
+    
+    /* 滴答计数 */
+    rtos_systick++;   
     
 #if RTOS_ENABLE_CPU_USE_CHECK == 1
    
-        /* 检查cpu使用率 */
-        rtos_cpu_use_check();   
+    /* 检查cpu使用率 */
+     rtos_cpu_use_check();   
     
 #endif 
     
-        /* 退出临界区保护 */
-        rtos_task_critical_exit(status);
+    /* 退出临界区保护 */
+    rtos_task_critical_exit(status);
     
 #if RTOS_ENABLE_TIMER == 1    
-        /* 通知定时器模块节拍事件 */
-        rtos_timer_moudule_tick_notify();
+    /* 通知定时器模块节拍事件 */
+    rtos_timer_moudule_tick_notify();
 #endif
 
 #if RTOS_ENABLE_HOOK == 1
 
-        /* 系统滴答调用钩子函数 */
-        rtos_hook_systick();
+    /* 系统滴答调用钩子函数 */
+    rtos_hook_systick();
 
 #endif
             
-       /* 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度 */
-       rtos_task_sched(); 
-    }
+    /* 这个过程中可能有任务延时完毕(delayTicks = 0)，进行一次调度 */
+    rtos_task_sched(); 
 }
 
 

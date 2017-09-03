@@ -151,6 +151,8 @@ int rtos_init (void)
     /* 空闲任务初始化 */
     rtos_task_init(&idle_task, idle_task_entry, NULL, RTOS_PRIO_COUNT - 1,  idle_task_stack_buf, sizeof(idle_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);
 
+
+
     return RTOS_OK;
 }
 
@@ -184,6 +186,8 @@ void rtos_start (void)
     
     /* 自动查找最高优先级的任务运行 */
     p_next_task =  rtos_task_highest_ready();
+    
+    
     
     /*  切换到p_next_task 指向的任务，这个函数永远不会返回 */
     rtos_task_run_first();

@@ -22,6 +22,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
      
+#define LED0 PBout(0)   /** \brief LED0 */
+#define LED1 PBout(1)   /** \brief LED1 */
+     
+     
 /**
   * @brief  This function Initializes  led
   * @param  led_pin:          LED¹Ü½Å

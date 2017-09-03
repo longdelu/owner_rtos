@@ -24,9 +24,73 @@
 #include "c_lib.h"
 #include "rtos_task_switch.h"
 #include "rtos_task.h"
+#include "rtos_init.h"
 
 /** \brief 调度锁计数器 */
-uint16_t __schedlock_count = 0;
+static uint16_t __schedlock_count = 0;
+static uint8_t  __osintnestingctr = 0;
+
+/**
+ * \brief  进入中断isr,递增嵌套次数
+ */
+void  rtos_interupt_enter (void)
+{
+    uint32_t status = 0;
+    
+    if (rtos_running_check() == 0) {             /* is os running?                                         */
+        return;                                  /* no                                                     */
+    }
+
+    if (__osintnestingctr >= 250u) {             /* have we nested past 250 levels?                        */
+        return;                                  /* yes                                                    */
+    }
+    
+    status = rtos_task_critical_entry(); 
+    
+    __osintnestingctr++;                         /* increment isr nesting level                            */
+    /* 退出临界区 */
+    rtos_task_critical_exit(status); 
+}
+
+
+/**
+ * \brief  退出中断isr,递减嵌套次数
+ */
+void  rtos_interupt_exit (void)
+{
+    uint32_t status = 0;
+    
+    if (rtos_running_check() == 0) {             /* is os running?                                         */
+        return;                                  /* no                                                     */
+    }
+
+    if (__osintnestingctr ==  0u) {             /* Prevent OSIntNestingCtr from wrapping, and sched the task*/
+        /* 退出任务进行务调度 */
+        rtos_task_sched();
+        return;                                 /* yes                                                    */
+    }
+    
+    status = rtos_task_critical_entry(); 
+    
+    __osintnestingctr--;                         /* decrement isr nesting level                            */
+    
+    /* 退出临界区 */
+    rtos_task_critical_exit(status);  
+    
+    if (__osintnestingctr > 0) {                 /* ISRs still nested?                                     */
+        
+        return;                                  /* Yes                                                    */
+    }
+    
+    if (rtos_task_schedlock_status()) {          /* Scheduler still locked?                                */
+        
+        return;                                  /* Yes                                                    */
+    }   
+    
+    /* 退出任务进行务调度 */
+    rtos_task_sched();
+        
+}
  
 
 /**

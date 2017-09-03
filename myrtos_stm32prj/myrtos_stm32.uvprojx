@@ -53,7 +53,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F429xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include</IncludePath>
+              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include;..\usr_conf\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -383,21 +383,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\usr\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_hal_clk_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_clk_init.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_hal_uart_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_uart_init.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_hal_led_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_led_init.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -552,6 +537,16 @@
               <FileType>1</FileType>
               <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_pwr_ex.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f4xx_hal_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_tim_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_tim_ex.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -672,6 +667,31 @@
               <FileType>5</FileType>
               <FilePath>..\usr_conf\stm32f4xx_hal_conf.h</FilePath>
             </File>
+            <File>
+              <FileName>stm32f4xx_hal_clk_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr_conf\sourse\stm32f4xx_hal_clk_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_led_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr_conf\sourse\stm32f4xx_hal_led_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_uart_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr_conf\sourse\stm32f4xx_hal_uart_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_tim_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr_conf\sourse\stm32f4xx_hal_tim_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_gpio_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr_conf\sourse\stm32f4xx_hal_gpio_init.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -720,7 +740,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>microlib_component</GroupName>
+          <GroupName>component</GroupName>
           <Files>
             <File>
               <FileName>microlib_adapter.c</FileName>

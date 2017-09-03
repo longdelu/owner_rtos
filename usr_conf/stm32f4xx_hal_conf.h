@@ -50,6 +50,8 @@
 /**
   * @brief This is the list of modules to be used in the HAL driver 
   */
+#define HAL_GPIO_INIT_ENABLED
+#define HAL_TIM_INIT_ENABLED
 #define HAL_LED_INIT_ENABLED
 #define HAL_UART_INIT_ENABLED
 #define HAL_CLK_INIT_ENABLED 
@@ -395,6 +397,14 @@
 
 #ifdef HAL_LED_INIT_ENABLED
  #include "stm32f4xx_hal_led_init.h"
+#endif
+
+#ifdef HAL_TIM_INIT_ENABLED
+ #include "stm32f4xx_hal_tim_init.h"
+#endif
+
+#ifdef HAL_GPIO_INIT_ENABLED
+ #include "stm32f4xx_hal_gpio_init.h"
 #endif
    
 /* Exported macro ------------------------------------------------------------*/

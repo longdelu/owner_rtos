@@ -62,7 +62,7 @@ rtos_task_t forth_task;
  */
 
 /**
- * \brief 当前任务入口函数
+ * \brief 当前任务入口函数,相当于starts任务
  * \note  系统节拍初始化函数要等任务初始化函数完成后才能调用
  */
 void first_task_entry (void *p_arg)
@@ -149,8 +149,6 @@ void  rtos_task_app_init (void)
     
 }
 
- /* UART句柄 */
-UART_HandleTypeDef UART1_Handler;
 
 /**
  * \brief 入口函数
@@ -174,6 +172,9 @@ int main (void)
     stm32f4xx_led_init(GPIO_PIN_0, GPIOB, 1); 
     stm32f4xx_led_init(GPIO_PIN_1, GPIOB, 1); 
     
+    
+    /* 定时器初始化 */
+    stm32f4xx_hal_tim_init(&TIM3_Handler, TIM3, 1000-1, 9000-1); 
  
     
     /* RTOS初始化 */
