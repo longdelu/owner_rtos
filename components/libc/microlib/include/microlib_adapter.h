@@ -12,7 +12,7 @@
 *******************************************************************************/
 /**
  * \file
- * \brief 操作系统任务链表实现 
+ * \brief microlib 微库适配器 
  * \internal
  * \par Modification history
  * - 1.00 17-07-10  nwt, first implementation.

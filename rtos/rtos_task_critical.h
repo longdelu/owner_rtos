@@ -20,7 +20,10 @@ extern "C" {
  * \endcode
  */    
 
-    
+/** \brief 调度锁状态 */
+#define TASKSCHED_UNLOCK           0    
+#define TASKSCHED_LOCK             1  
+        
     
 /**
  * \brief  进入临界区

@@ -25,6 +25,12 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal_led_init.h"
 
+#if SUPPORT_OS   /* 使用OS */    
+
+#include "rtos_task_critical.h"
+
+#endif
+
 //TIM_HandleTypeDef TIM2_Handler;      /** < \brief 定时器2句柄  */
 TIM_HandleTypeDef TIM3_Handler;      /** < \brief 定时器3句柄  */
 //TIM_HandleTypeDef TIM4_Handler;      /** < \brief 定时器4句柄  */
@@ -136,10 +142,20 @@ void TIM3_IRQHandler(void)
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+    
+#if SUPPORT_OS   /* 使用OS */    
+    rtos_interupt_enter();    
+#endif
+  
     if(htim==(&TIM3_Handler))
     {
         LED1=!LED1;        /* LED1反转 */
     }
+    
+#if SUPPORT_OS   /* 使用OS */    
+    rtos_interupt_exit();    
+#endif  
+    
 }
 
 

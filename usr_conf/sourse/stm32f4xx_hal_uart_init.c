@@ -24,10 +24,25 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 
+#if SUPPORT_OS   /* 使用OS */    
+
+#include "rtos_task_critical.h"
+
+#endif
+
 /* UART句柄 */
 UART_HandleTypeDef UART1_Handler;
 
 
+uint8_t USART_RX_BUF[USART_REC_LEN];     /* 接收缓冲,最大USART_REC_LEN个字节. */
+
+//接收状态
+//bit15，    接收完成标志
+//bit14，    接收到0x0d
+//bit13~0，    接收到的有效字节数目
+uint16_t USART_RX_STA=0;       //接收状态标记    
+
+uint8_t aRxBuffer[RXBUFFERSIZE];//HAL库使用的串口接收缓冲
 
 
 /**
@@ -52,12 +67,15 @@ void HAL_UART_MspInit(UART_HandleTypeDef *p_huart_base)
 
         GPIO_Initure.Pin=GPIO_PIN_10;             //PA10
         HAL_GPIO_Init(GPIOA,&GPIO_Initure);       //初始化PA10
-          
+                                                                  
+#ifdef ENABLE_UART_REC_INT        
+        HAL_NVIC_EnableIRQ(USART1_IRQn);          //使能USART1中断通道  
+#endif
     }
 
 }
  
-/**
+/**                         
   * @brief  This function Initializes uart
   * @retval HAL status
   */
@@ -73,9 +91,57 @@ void stm32f4xx_uart_init(UART_HandleTypeDef *p_uart_handler, USART_TypeDef *p_ua
     p_uart_handler->Init.Mode=UART_MODE_TX_RX;                   //收发模式
     HAL_UART_Init(p_uart_handler);                               //HAL_UART_Init()会使能UART
     
+#ifdef ENABLE_UART_REC_INT
+    __HAL_UART_ENABLE_IT(huart,UART_IT_RXNE);                    //开启接收中断
+
+#endif    
+    
 }
- 
- 
+
+#ifdef ENABLE_UART_REC_INT
+
+/** \brief 串口1中断服务程序 */
+void USART1_IRQHandler(void)                    
+{ 
+    uint8_t Res = 0;
+    
+#if SUPPORT_OS   /* 使用OS */    
+    rtos_interupt_enter();    
+#endif
+    
+    /* 注意,读取USARTx->SR能避免莫名其妙的错误 */
+    if((__HAL_UART_GET_FLAG(&UART1_Handler,UART_FLAG_RXNE)!=RESET))  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
+    {
+        HAL_UART_Receive(&UART1_Handler,&Res,1,1000); 
+        if((USART_RX_STA&0x8000)==0)//接收未完成
+        {
+            if(USART_RX_STA&0x4000)//接收到了0x0d
+            {
+                if(Res!=0x0a)USART_RX_STA=0;//接收错误,重新开始
+                else USART_RX_STA|=0x8000;    //接收完成了 
+            }
+            else //还没收到0X0D
+            {    
+                if(Res==0x0d)USART_RX_STA|=0x4000;
+                else
+                {
+                    USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
+                    USART_RX_STA++;
+                    if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收      
+                }         
+            }
+        }            
+    }
+    
+    HAL_UART_IRQHandler(&UART1_Handler); 
+    
+#if SUPPORT_OS   /* 使用OS */    
+    rtos_interupt_exit();    
+#endif    
+}
+
+#endif
+  
  
  
  

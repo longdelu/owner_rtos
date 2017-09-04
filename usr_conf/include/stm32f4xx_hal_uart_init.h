@@ -22,6 +22,21 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
      
+#define RXBUFFERSIZE         1     /** < \brief 缓存大小 */
+#define USART_REC_LEN        200   /** < \brief 定义最大接收字节数 200 */ 
+
+#define ENABLE_UART_REC_INT  1     /** < \brief 使用串口接收中断 */ 
+
+extern uint8_t USART_RX_BUF[USART_REC_LEN];     /* 接收缓冲,最大USART_REC_LEN个字节. */
+
+//接收状态
+//bit15，    接收完成标志
+//bit14，    接收到0x0d
+//bit13~0，    接收到的有效字节数目
+extern uint16_t USART_RX_STA;       //接收状态标记    
+
+extern uint8_t aRxBuffer[RXBUFFERSIZE];//HAL库使用的串口接收缓冲    
+     
 /**
   * @brief  This function Initializes  uart
   * @param  p_uart_handler:    串口句柄

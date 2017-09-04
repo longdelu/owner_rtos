@@ -53,7 +53,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>0</BrowseInformation>
+          <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F429xx</Define>
+              <Define>USE_HAL_DRIVER,STM32F429xx,SUPPORT_OS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include;..\usr_conf\include</IncludePath>
+              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include;..\usr_conf\include;..\components\usmart\include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -746,6 +746,21 @@
               <FileName>microlib_adapter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\components\libc\microlib\sources\microlib_adapter.c</FilePath>
+            </File>
+            <File>
+              <FileName>usmart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\components\usmart\sources\usmart.c</FilePath>
+            </File>
+            <File>
+              <FileName>usmart_config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\components\usmart\sources\usmart_config.c</FilePath>
+            </File>
+            <File>
+              <FileName>usmart_str.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\components\usmart\sources\usmart_str.c</FilePath>
             </File>
           </Files>
         </Group>
