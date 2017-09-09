@@ -92,7 +92,7 @@ void stm32f4xx_uart_init(UART_HandleTypeDef *p_uart_handler, USART_TypeDef *p_ua
     HAL_UART_Init(p_uart_handler);                               //HAL_UART_Init()会使能UART
     
 #ifdef ENABLE_UART_REC_INT
-    __HAL_UART_ENABLE_IT(huart,UART_IT_RXNE);                    //开启接收中断
+    __HAL_UART_ENABLE_IT(p_uart_handler,UART_IT_RXNE);                    //开启接收中断
 
 #endif    
     

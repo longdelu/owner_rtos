@@ -65,7 +65,7 @@
 //#define HAL_DCMI_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_DMA2D_MODULE_ENABLED
-//#define HAL_ETH_MODULE_ENABLED
+#define HAL_ETH_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_NAND_MODULE_ENABLED
 #define HAL_NOR_MODULE_ENABLED
@@ -216,7 +216,7 @@
   
 /* Section 4: Extended PHY Registers */
 
-#define PHY_SR                          ((uint16_t)0x10)    /*!< PHY status register Offset                      */
+#define PHY_SR                          ((uint16_t)0x1F)    /*!< PHY status register Offset of LAN8720                      */
 #define PHY_MICR                        ((uint16_t)0x11)    /*!< MII Interrupt Control Register                  */
 #define PHY_MISR                        ((uint16_t)0x12)    /*!< MII Interrupt Status and Misc. Control Register */
  

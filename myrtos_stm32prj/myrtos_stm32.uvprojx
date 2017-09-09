@@ -53,7 +53,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F429xx,SUPPORT_OS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include;..\usr_conf\include;..\components\usmart\include</IncludePath>
+              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include;..\usr_conf\include;..\components\usmart\include;..\device\include;..\usr\i2c;..\usr\sram;..\usr\malloc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -383,6 +383,21 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\usr\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>sdram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\sram\sdram.c</FilePath>
+            </File>
+            <File>
+              <FileName>myiic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\i2c\myiic.c</FilePath>
+            </File>
+            <File>
+              <FileName>malloc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\usr\malloc\malloc.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -547,6 +562,36 @@
               <FileType>1</FileType>
               <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_tim_ex.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f4xx_hal_sram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_sram.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_ll_fmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_ll_fmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_ll_fsmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_ll_fsmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_ll_sdmmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_ll_sdmmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_sdram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_sdram.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_eth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\soc\stm32f4xx\driver\stm32f4xx_hal_eth.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -668,6 +713,11 @@
               <FilePath>..\usr_conf\stm32f4xx_hal_conf.h</FilePath>
             </File>
             <File>
+              <FileName>stm32f4xx_hal.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\soc\stm32f4xx\include\stm32f4xx_hal.h</FilePath>
+            </File>
+            <File>
               <FileName>stm32f4xx_hal_clk_init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\usr_conf\sourse\stm32f4xx_hal_clk_init.c</FilePath>
@@ -747,20 +797,20 @@
               <FileType>1</FileType>
               <FilePath>..\components\libc\microlib\sources\microlib_adapter.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>device</GroupName>
+          <Files>
             <File>
-              <FileName>usmart.c</FileName>
+              <FileName>lan8720.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\components\usmart\sources\usmart.c</FilePath>
+              <FilePath>..\device\source\LAN8720\lan8720.c</FilePath>
             </File>
             <File>
-              <FileName>usmart_config.c</FileName>
+              <FileName>pcf8574.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\components\usmart\sources\usmart_config.c</FilePath>
-            </File>
-            <File>
-              <FileName>usmart_str.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\components\usmart\sources\usmart_str.c</FilePath>
+              <FilePath>..\device\source\PCF8574\pcf8574.c</FilePath>
             </File>
           </Files>
         </Group>
