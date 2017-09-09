@@ -301,12 +301,7 @@ void rtos_mdelay (int32_t ms)
  */
 void SysTick_Handler (void) 
 {  
-    /* 当操作系统运行起来时才执行调度 */
-    if (rtos_running_check() == 0) {
-        
-        return;
-        
-    }
+
     /* 临界区保户 */
     uint32_t status = rtos_task_critical_entry();
     
@@ -314,12 +309,23 @@ void SysTick_Handler (void)
     /* stm32f4xx tick */
     HAL_IncTick();
 #endif
-     
-    __rtos_task_delay_tick_handler();    
+    
+    /* 当操作系统运行起来时才执行调度 */
+    if (rtos_running_check() == 0) {
+        
+        /* 退出临界区保护 */
+        rtos_task_critical_exit(status); 
+        
+        return;
+        
+    }    
     
     /* 滴答计数 */
-    rtos_systick++;   
+    rtos_systick++;    
     
+    __rtos_task_delay_tick_handler();    
+    
+   
 #if RTOS_ENABLE_CPU_USE_CHECK == 1
    
     /* 检查cpu使用率 */

@@ -28,6 +28,8 @@
 
 /** \brief 调度锁计数器 */
 static uint16_t __schedlock_count = 0;
+
+/** \brief 中断嵌套计数器 */
 static uint8_t  __osintnestingctr = 0;
 
 /**
@@ -45,6 +47,7 @@ void  rtos_interupt_enter (void)
         return;                                  /* yes                                                    */
     }
     
+    /* 进入临界区 */
     status = rtos_task_critical_entry(); 
     
     __osintnestingctr++;                         /* increment isr nesting level                            */
@@ -70,6 +73,7 @@ void  rtos_interupt_exit (void)
         return;                                 /* yes                                                    */
     }
     
+    /* 进入临界区 */    
     status = rtos_task_critical_entry(); 
     
     __osintnestingctr--;                         /* decrement isr nesting level                            */

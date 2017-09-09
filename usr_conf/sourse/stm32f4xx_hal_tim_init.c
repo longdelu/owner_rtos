@@ -150,6 +150,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if(htim==(&TIM3_Handler))
     {
         LED1=!LED1;        /* LED1反转 */
+        #lwip_localtime += 10;
+        
     }
     
 #if SUPPORT_OS   /* 使用OS */    
