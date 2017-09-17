@@ -59,7 +59,7 @@
 
 #include "lwip/def.h"
 #include "lwip/mem.h"
-#include "lwip/lwip_sys.h"
+#include "lwip/sys.h"
 #include "lwip/stats.h"
 #include "lwip/err.h"
 

@@ -22,6 +22,14 @@
  */
 #include "rtos_init.h"
 #include "microlib_adapter.h"
+#include "sdram.h"
+#include "lan8720.h"
+#include "pcf8574.h"
+#include "usmart.h"
+#include "malloc.h"
+#include "lwip/netif.h"
+#include "lwip_comm.h"
+#include "lwipopts.h"
 
 #define   TASK_STACK_SIZE  1024  
 
@@ -31,31 +39,18 @@ int g_task_flag1 = 0;
 /** \brief 任务2标记 */
 int g_task_flag2 = 0;
 
-/** \brief 任务3标记 */
-int g_task_flag3 = 0;
-
-/** \brief 任务4标记 */
-int g_task_flag4 = 0; 
-
 /** \brief 任务堆栈 */
 
  /* 按8字节对齐 */
 __align(8) taskstack_t first_task_stack_buf[TASK_STACK_SIZE];
 __align(8) taskstack_t second_task_stack_buf[TASK_STACK_SIZE];
-__align(8) taskstack_t third_task_stack_buf[TASK_STACK_SIZE];
-__align(8) taskstack_t forth_task_stack_buf[TASK_STACK_SIZE];
+
 
 /** \brief 当前任务结构体 */
 rtos_task_t first_task;
 
 /** \brief 下一个任务结构体 */
 rtos_task_t second_task;
-
-/** \brief 第三个任务结构体 */
-rtos_task_t third_task;
-
-/** \brief 第四个任务结构体 */
-rtos_task_t forth_task;
 
 /**
  * \brief 任务状态信息
@@ -103,39 +98,6 @@ void second_task_entry (void *p_arg)
     }
 }
 
-/**
- * \brief 第三个任务入口函数
- */
-void third_task_entry (void *p_arg)
-{     
-       
-    for (; ;) {
-                    
-        *((uint32_t*) p_arg) = 1;
-        rtos_sched_mdelay(10); 
-        *((uint32_t*) p_arg) = 0   ;
-        rtos_sched_mdelay(10);    
-         
-    }
-}
-
-/**
- * \brief 第四个任务入口函数
- */
-void forth_task_entry (void *p_arg)
-{        
-    
-    for (; ;) {
-                        
-        *((uint32_t*) p_arg) = 1;
-        stm32f4xx_led_on(GPIO_PIN_0,GPIOB); 
-        rtos_sched_mdelay(10); 
-        *((uint32_t*) p_arg) = 0   ;
-        stm32f4xx_led_off(GPIO_PIN_0,GPIOB); 
-        rtos_sched_mdelay(10); 
-                      
-    }
-}
 
 /**
  * \brief RTOS 应用相关任务初始化
@@ -143,9 +105,7 @@ void forth_task_entry (void *p_arg)
 void  rtos_task_app_init (void) 
 {
     rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf),RTOS_TASK_OPT_SAVE_FP); 
-    rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);
-    rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);
-    rtos_task_init(&forth_task,   forth_task_entry,  &g_task_flag4, 1,  forth_task_stack_buf, sizeof(forth_task_stack_buf),RTOS_TASK_OPT_SAVE_FP);    
+    rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf),RTOS_TASK_OPT_SAVE_FP); 
     
 }
 
@@ -155,7 +115,8 @@ void  rtos_task_app_init (void)
  */
 int main (void)
 {  
-   
+    uint32_t i = 0;
+    
     /* 组优先级有4位，次优先级也有4位 */
     NVIC_SetPriorityGrouping(0x03);
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(0x03,0x0F,0x0F));
@@ -163,19 +124,56 @@ int main (void)
     /* 时钟初始化 */
     stm32f4xx_hal_clk_init(&clk_dev, &clk_info);
     
+    /* 滴答初始化 */
+    rtos_systick_init();    
+    
     /* 串口打印初始化 */
     stm32f4xx_uart_init(&UART1_Handler, USART1, 115200);        
     microlib_adapter_init(NULL, &UART1_Handler);
-   
-    
+
     /* led初始化 */
     stm32f4xx_led_init(GPIO_PIN_0, GPIOB, 1); 
     stm32f4xx_led_init(GPIO_PIN_1, GPIOB, 1); 
+
+    SDRAM_Init();                   /* 初始化SDRAM */
     
+    PCF8574_Init();                 //初始化PCF8574
+    my_mem_init(SRAMIN);            //初始化内部内存池
+    my_mem_init(SRAMEX);            //初始化外部内存池
+    my_mem_init(SRAMCCM);            //初始化CCM内存池
     
     /* 定时器初始化 */
-    stm32f4xx_hal_tim_init(&TIM3_Handler, TIM3, 1000-1, 9000-1); 
- 
+    stm32f4xx_hal_tim_init(&TIM3_Handler, TIM3, 1000-1, 900-1); 
+     
+    while(lwip_comm_init())         //lwip初始化
+    {
+        printf("LWIP Init Falied! ");
+        rtos_mdelay(500);
+        printf("Retrying...       ");
+        rtos_mdelay(500);
+    }
+    
+    printf("LWIP Init Success!");
+    printf("DHCP IP configing...");  //等待DHCP获取 
+#if LWIP_DHCP   //使用DHCP
+    while((lwipdev.dhcpstatus!=2)&&(lwipdev.dhcpstatus!=0XFF))//等待DHCP获取成功/超时溢出
+    {  
+        lwip_periodic_handle();    //LWIP内核需要定时处理的函数
+    }
+#endif
+    show_address(lwipdev.dhcpstatus);    //显示地址信息
+    while(1)
+    {
+        lwip_periodic_handle();    //LWIP内核需要定时处理的函数
+        rtos_udelay(200);
+        i++;
+        if(i==2000)
+        {
+            i=0;
+            LED0=!LED0;
+        }
+    }   
+    
     
     /* RTOS初始化 */
     rtos_init();
@@ -198,8 +196,11 @@ int main (void)
 
     printf("rtos init complete\r\n");
     
+
+#ifdef LWIP_SUPPORT_OS
     /* 启动操作系统, 自动查找最高优先级的任务运行,这个函数永远不会返回 */
     rtos_start();
+#endif
 
     
     return RTOS_OK;    

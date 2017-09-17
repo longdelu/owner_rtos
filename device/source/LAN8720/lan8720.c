@@ -1,9 +1,8 @@
 #include "lan8720.h"
 #include "pcf8574.h"
 #include "lwip_comm.h"
-#include "delay.h"
+#include "rtos_init.h"
 #include "malloc.h"
-#include "includes.h"
 //////////////////////////////////////////////////////////////////////////////////	 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32F429开发板
@@ -31,12 +30,12 @@ u8 LAN8720_Init(void)
 {      
     u8 macaddress[6];
     
-    INTX_DISABLE();                         //关闭所有中断，复位过程不能被打断！
+    uint32_t status = rtos_task_critical_entry();                         //关闭所有中断，复位过程不能被打断！
     PCF8574_WriteBit(ETH_RESET_IO,1);       //硬件复位
-    delay_ms(100);
+    rtos_mdelay(100);
     PCF8574_WriteBit(ETH_RESET_IO,0);       //复位结束
-    delay_ms(100);
-    INTX_ENABLE();                          //开启所有中断  
+    rtos_mdelay(100);
+    rtos_task_critical_exit(status);                          //开启所有中断  
 
     macaddress[0]=lwipdev.mac[0]; 
 	macaddress[1]=lwipdev.mac[1]; 
@@ -142,7 +141,7 @@ extern void lwip_pkt_handle(void);		//在lwip_comm.c里面定义
 //中断服务函数
 void ETH_IRQHandler(void)
 {
-    OSIntEnter(); 
+    uint32_t status = rtos_task_critical_entry();                         //关闭所有中断，复位过程不能被打断！
     while(ETH_GetRxPktSize(ETH_Handler.RxDesc))   
     {
         lwip_pkt_handle();//处理以太网数据，即将数据提交给LWIP
@@ -150,7 +149,7 @@ void ETH_IRQHandler(void)
     //清除中断标志位
     __HAL_ETH_DMA_CLEAR_IT(&ETH_Handler,ETH_DMA_IT_R); 
     __HAL_ETH_DMA_CLEAR_IT(&ETH_Handler,ETH_DMA_IT_NIS); 
-    OSIntExit();  
+     rtos_task_critical_exit(status);                          //开启所有中断   
 }
 
 //获取接收到的帧长度

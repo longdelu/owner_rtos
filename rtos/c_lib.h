@@ -43,7 +43,17 @@ typedef volatile uint8_t  vu8;
 
 typedef volatile const uint32_t vuc32;  
 typedef volatile const uint16_t vuc16; 
-typedef volatile const uint8_t vuc8;      
+typedef volatile const uint8_t vuc8;
+
+#ifndef LWIP_TYPE
+
+typedef unsigned   char    u8_t;    /* Unsigned 8 bit quantity         */
+typedef signed     char    s8_t;    /* Signed    8 bit quantity        */
+typedef unsigned   short   u16_t;   /* Unsigned 16 bit quantity        */
+typedef signed     short   s16_t;   /* Signed   16 bit quantity        */
+typedef unsigned   long    u32_t;   /* Unsigned 32 bit quantity        */
+
+#endif
     
 
 

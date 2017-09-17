@@ -134,6 +134,7 @@ void TIM3_IRQHandler(void)
 {
     HAL_TIM_IRQHandler(&TIM3_Handler);
     
+
 }
 
 
@@ -150,7 +151,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if(htim==(&TIM3_Handler))
     {
         LED1=!LED1;        /* LED1反转 */
-        #lwip_localtime += 10;
+#ifdef LWIP_NO_SUPPORT_OS
+        extern uint32_t lwip_localtime;           //lwip本地时间计数器,单位:ms
+        lwip_localtime += 10;
+#endif
         
     }
     

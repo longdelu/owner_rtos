@@ -54,7 +54,7 @@
 #include "lwip/dhcp.h"
 #include "lwip/autoip.h"
 #include "lwip/stats.h"
-#include "arch/perf.h"
+#include "perf.h"
 
 #include <string.h>
 

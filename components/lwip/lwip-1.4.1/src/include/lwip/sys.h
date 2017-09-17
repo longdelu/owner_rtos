@@ -29,8 +29,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef __LWIP_SYS_H__
-#define __LWIP_SYS_H__
+#ifndef __sys_H__
+#define __sys_H__
 
 #include "lwip/opt.h"
 
@@ -83,7 +83,7 @@ typedef u8_t sys_mbox_t;
 #define SYS_MBOX_EMPTY SYS_ARCH_TIMEOUT 
 
 #include "lwip/err.h"
-#include "arch/sys_arch.h"
+#include "sys_arch.h"
 
 /** Function prototype for thread functions */
 typedef void (*lwip_thread_fn)(void *arg);
@@ -334,4 +334,4 @@ void sys_arch_unprotect(sys_prot_t pval);
 }
 #endif
 
-#endif /* __LWIP_SYS_H__ */
+#endif /* __sys_H__ */

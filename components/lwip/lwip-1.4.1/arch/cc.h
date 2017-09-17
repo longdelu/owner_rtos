@@ -8,6 +8,10 @@
 #include "stdio.h"
 #include "rtos_init.h"
 
+#define LWIP_TYPE
+
+#ifdef LWIP_TYPE
+
 //定义与平台无关的数据类型
 typedef unsigned   char    u8_t;  	//无符号8位整数  
 typedef signed     char    s8_t;   	//有符号8位整数 
@@ -15,6 +19,10 @@ typedef unsigned   short   u16_t;  	//无符号16位整数
 typedef signed     short   s16_t;   //有符号16位整数
 typedef unsigned   long    u32_t;   //无符号32位整数
 typedef signed     long    s32_t;   //有符号32位整数
+
+#endif
+
+
 typedef u32_t mem_ptr_t;            //内存地址型数据
 typedef int sys_prot_t;				//临界保护型数据
 

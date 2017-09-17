@@ -2,7 +2,7 @@
 #include "usmart_str.h"
 ////////////////////////////用户配置区///////////////////////////////////////////////
 //这下面要包含所用到的函数所申明的头文件(用户自己添加) 
-#include "rtos_task_delay.h"
+#include "rtos_task_rtos_task_delay.h"
 
 //LED状态设置函数
 void led_set(u8 sta)
@@ -24,7 +24,7 @@ struct _m_usmart_nametab usmart_nametab[]=
     (void*)write_addr,(uint8_t *)"void write_addr(u32 addr,u32 val)",     
 #endif
     
-//    (void*)delay_ms,"void delay_ms(u16 nms)",
+//    (void*)rtos_mdelay,"void rtos_mdelay(u16 nms)",
 //    (void*)delay_us,"void delay_us(u32 nus)",
 
     (void*)led_set, (uint8_t *)"void led_set(u8 sta)",

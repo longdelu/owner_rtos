@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F429xx,SUPPORT_OS</Define>
+              <Define>USE_HAL_DRIVER,STM32F429xx,SUPPORT_OS,LWIP_NO_SUPPORT_OS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include;..\usr_conf\include;..\components\usmart\include;..\device\include;..\usr\i2c;..\usr\sram;..\usr\malloc;..\usr\lwip_app\lwip_comm;..\components\lwip\lwip-1.4.1\src\include;..\components\lwip\lwip-1.4.1\src\netif;..\components\lwip\lwip-1.4.1\src\include\ipv4;..\components\lwip\lwip-1.4.1\arch;..\startup</IncludePath>
+              <IncludePath>..\usr;..\rtos;..\soc\stm32f4xx\include;..\soc\stm32f4xx\include\legacy;..\usr_conf;..\core;..\components\libc\microlib\include;..\usr_conf\include;..\components\usmart\include;..\device\include;..\usr\i2c;..\usr\sram;..\usr\malloc;..\usr\lwip_app\lwip_comm;..\components\lwip\lwip-1.4.1\src\include;..\components\lwip\lwip-1.4.1\src\netif;..\components\lwip\lwip-1.4.1\src\include\ipv4;..\components\lwip\lwip-1.4.1\arch;..\startup;..\components\lwip\lwip-1.4.1\src\include\netif</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -706,6 +706,11 @@
               <FileName>readme.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\rtos\readme.h</FilePath>
+            </File>
+            <File>
+              <FileName>rtos_cpu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\rtos\rtos_cpu.c</FilePath>
             </File>
           </Files>
         </Group>

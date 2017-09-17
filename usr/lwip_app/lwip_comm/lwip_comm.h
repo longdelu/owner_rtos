@@ -35,16 +35,28 @@ typedef struct
 					//0XFF,获取失败.
 }__lwip_dev;
 extern __lwip_dev lwipdev;	//lwip控制结构体
-
 void lwip_pkt_handle(void);
 void lwip_comm_default_ip_set(__lwip_dev *lwipx);
 u8 lwip_comm_mem_malloc(void);
 void lwip_comm_mem_free(void);
 u8 lwip_comm_init(void);
+
+#ifdef LWIP_SUPPORT_OS
+
 void lwip_comm_dhcp_creat(void);
 void lwip_comm_dhcp_delete(void);
 void lwip_comm_destroy(void);
 void lwip_comm_delete_next_timeout(void);
+
+#endif
+
+//打印出地址信息
+//mode:2 显示DHCP获取到的地址
+//    其他 显示静态地址
+void show_address(u8 mode);
+void lwip_dhcp_process_handle(void);
+void lwip_periodic_handle(void);
+
 #endif
 
 

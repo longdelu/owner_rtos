@@ -36,13 +36,28 @@
 /* lwIP includes. */
 #include "lwip/debug.h"
 #include "lwip/def.h"
-#include "lwip/lwip_sys.h"
+#include "lwip/sys.h"
 #include "lwip/mem.h"
-#include "includes.h"
-#include "delay.h"
-#include "arch/sys_arch.h"
+#include "rtos_init.h"
+#include "rtos_task_delay.h"
+#include "sys_arch.h"
 #include "malloc.h"
 
+#ifdef LWIP_NO_SUPPORT_OS
+
+//获取系统时间,LWIP1.4.1增加的函数
+//返回值:当前系统时间(单位:毫秒)
+extern uint32_t lwip_localtime;           //lwip本地时间计数器,单位:ms
+
+u32_t sys_now(void)
+{
+    return lwip_localtime;
+}
+
+#endif
+
+
+#ifdef LWIP_SUPPORT_OS
 
 //当消息指针为空时,指向一个常量pvNullPointer所指向的值.
 //在UCOS中如果OSQPost()中的msg==NULL会返回一条OS_ERR_POST_NULL
@@ -268,7 +283,7 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
 //ms:要延时的ms数
 void sys_msleep(u32_t ms)
 {
-	delay_ms(ms);
+	rtos_mdelay(ms);
 }
 //获取系统时间,LWIP1.4.1增加的函数
 //返回值:当前系统时间(单位:毫秒)
@@ -280,5 +295,6 @@ u32_t sys_now(void)
 	return lwip_time; 		//返回lwip_time;
 }
 
+#endif
 
 

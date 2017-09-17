@@ -49,7 +49,7 @@
 #include "lwip/api.h"
 #include "lwip/api_msg.h"
 #include "lwip/tcpip.h"
-#include "lwip/lwip_sys.h"
+#include "lwip/sys.h"
 #include "lwip/timers.h"
 #include "lwip/stats.h"
 #include "netif/etharp.h"
