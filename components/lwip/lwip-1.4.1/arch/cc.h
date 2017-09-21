@@ -27,7 +27,7 @@ typedef u32_t mem_ptr_t;            //内存地址型数据
 typedef int sys_prot_t;				//临界保护型数据
 
 /* 当定义了SUPPORT_OS时就说明使用了rtos */
-#ifdef SUPPORT_OS
+#ifdef LWIP_SUPPORT_OS
 #define SYS_ARCH_DECL_PROTECT(lev) 	u32_t lev
 #define SYS_ARCH_PROTECT(lev)		lev = rtos_task_critical_entry()
 #define SYS_ARCH_UNPROTECT(lev)		rtos_task_critical_exit(lev)
