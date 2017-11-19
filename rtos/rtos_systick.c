@@ -190,7 +190,7 @@ void rtos_systick_init (void)
     
 #ifdef ARMCM3 
 
-    SysTick->LOAD  = __g_reload 
+    SysTick->LOAD  = __g_reload; 
 #endif
 
 #ifdef STM32F429xx 
