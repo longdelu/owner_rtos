@@ -177,6 +177,9 @@ static void __rtos_task_delay_tick_handler (void)
  */
 void rtos_systick_init (void)
 {
+    /* 在stm32中，系统频率等于在HCLK，
+     * 并且该值会在时钟初始化的时候会被更新 
+     */
     uint32_t sysclk = SystemCoreClock;
     
     __g_us_ticks =  sysclk / 1000000;
@@ -196,6 +199,7 @@ void rtos_systick_init (void)
 #ifdef STM32F429xx 
     /* SysTick频率为HCLK */
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+    
     if (RTOS_SYSTICK_PERIOD >  __g_ms_max) {
         while(1) {
             ;
