@@ -237,7 +237,7 @@ int main (void)
     /* 初始化任务延时队列 */    
     rtos_task_delayed_init(&rtos_task_delayedlist);
     
-    /* 任务初始化函数 */
+    /* 任务初始化函数  */
     rtos_task_init(&first_task,   first_task_entry,  &g_task_flag1, 0,  first_task_stack_buf,   sizeof(first_task_stack_buf)); 
     rtos_task_init(&second_task,  second_task_entry, &g_task_flag2, 1,  second_task_stack_buf,  sizeof(second_task_stack_buf));
     rtos_task_init(&third_task,   third_task_entry,  &g_task_flag3, 1,  third_task_stack_buf, sizeof(third_task_stack_buf));
